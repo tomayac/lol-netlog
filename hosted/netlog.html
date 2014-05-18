@@ -70,6 +70,7 @@ function drop(e) {
     reader.readAsText(file);
 }
 
+// Load a canned log file as a demo
 function loadDemo() {
     d3.text("demo.txt", function(error, data) {
         if (error) {
@@ -80,14 +81,57 @@ function loadDemo() {
     });
 }
 
+// Pull just the CSV data out of the logfile
+// Input format is:
+// [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
+// Output: array of row objects.
+function extract(data) {
+    var result = [];
+    // CSV data starts with a number and a comma
+    var parseRE = new RegExp("^\\d+,.*$", "gm");
+    var match = null;
+    var lastLoss = 0;
+
+    // Loop through lines that look like CSV data
+    while (match = parseRE.exec(data)) {
+        // Split the row by comma
+        var cols = match[0].split(',');
+        // Derive the incremental loss in this report
+        var cumulativeLoss = +cols[6];
+        var incrementalLoss = cumulativeLoss - lastLoss;
+        lastLoss = cumulativeLoss;
+        // Construct a result object
+        result.push({
+            time: +cols[0],
+            ping: +cols[8],
+            cumulativeLoss: +cols[6],
+            incrementalLoss: incrementalLoss,
+            incoming: +cols[2],
+            outgoing: +cols[3]});
+    }
+
+    return result;
+}
+
 // Demo function to handle data from the file dropped in
-function processFile(data) {
+function processFile(dataText) {
+    var data = extract(dataText);
+    var lastRow = data[data.length - 1];
+    var matchLength = lastRow.time / 1000;
+
+    console.log("Match length", Math.round(matchLength/60), "minutes");
+    console.log(Math.round(lastRow.incoming/matchLength) + " bytes/s in " +
+                Math.round(lastRow.outgoing/matchLength) + " bytes/s out");
+    console.log(lastRow.cumulativeLoss + " packets lost: " +
+                (lastRow.cumulativeLoss/matchLength).toFixed(2), "packets/s");
+    console.log("Packet losses", data.map(function(r) { return r.incrementalLoss; }).join(' '));
+
     // Hide the "drop file" prompting
     dropzone.style.display = "none";
 
     // Display the contents of the file
     var display = document.getElementById("results");
-    display.innerHTML = "<pre>" + data + "</pre>";
+    display.innerHTML = "<pre>" + dataText + "</pre>";
     display.style.display = "block";
 }
 
