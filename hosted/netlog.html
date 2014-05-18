@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head> <meta charset="utf-8">
-<title>Simple drag and drop demo</title>
+<title>LoL Netlog parser</title>
 <style type="text/css">
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Helvetica, Arial, sans; }
 #help {
     width: 100%; height: 100%;
-    background-color: #ddd; font-size: 36pt; color: #444;
+    background-color: #ddd; color: #444;
     text-align: center; padding-top: 100px;
 }
 #results {
@@ -23,21 +23,17 @@ body { margin: 0; font-family: Helvetica, Arial, sans; }
 
 <body>
 <div id="help">
-Drop files here<br>
-A demonstration of simple<br>
-HTML drag and drop<br>
-<a href="https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications">Based on this MDN tutorial</a>
+<h1>LoL Netlog parser</h1>
+<h2>Drop a log file on this web page</h2>
+<p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
+<p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
+<tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
+<h3>By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
 <div id="results"></div>
 <script type="text/javascript">
 
-/* A demonstration of a basic web page that processes dropped files.
- * This demo just shows the dropped file in a <pre> block on the page itself.
- * Based on the MDN article https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
- * Tested in Chrome, Firefox, Safari. Screw IE.
- */
 
-// Register our own handler for drop events on the target element. Could also be document.body.
 var dropzone = document.getElementById("help");
 dropzone.addEventListener("dragenter", cancelEvent, false);
 dropzone.addEventListener("dragover", cancelEvent, false);
@@ -56,7 +52,6 @@ function drop(e) {
     cancelEvent(e);
 
     // Read in the file and hand it off to our application function
-    console.log("Processing", file.name);
     var reader = new FileReader();
     reader.onloadend = function(e) {
         // Very basic error handling
@@ -75,8 +70,6 @@ function drop(e) {
 
 // Demo function to handle data from the file dropped in
 function processFile(data) {
-    console.log("Data loaded");
-
     // Hide the "drop file" prompting
     dropzone.style.display = "none";
 
