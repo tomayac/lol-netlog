@@ -32,7 +32,14 @@ body { margin: 0; font-family: Helvetica, Arial, sans; }
 <p>Or <a title="load demo" href="#" onclick="loadDemo();return false;">click here</a> to load a demo file</a>
 <h3>By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
-<div id="results"></div>
+<div id="results">
+<h1>Log results</h1>
+<div><span id="gameLength"></span> minutes</div>
+<div><span id="incoming"></span> bytes/s in</div>
+<div><span id="outgoing"></span> bytes/s out</div>
+<div><span id="cumulativeLoss"></span> packets lost<div>
+<div><span id="lossPerSec"></span> packets/s lost</div>
+
 <script type="text/javascript">
 
 
@@ -119,11 +126,12 @@ function processFile(dataText) {
     var lastRow = data[data.length - 1];
     var matchLength = lastRow.time / 1000;
 
-    console.log("Match length", Math.round(matchLength/60), "minutes");
-    console.log(Math.round(lastRow.incoming/matchLength) + " bytes/s in " +
-                Math.round(lastRow.outgoing/matchLength) + " bytes/s out");
-    console.log(lastRow.cumulativeLoss + " packets lost: " +
-                (lastRow.cumulativeLoss/matchLength).toFixed(2), "packets/s");
+    d3.select("#gameLength").text(Math.round(matchLength/60));
+    d3.select("#incoming").text(Math.round(lastRow.incoming/matchLength));
+    d3.select("#outgoing").text(Math.round(lastRow.outgoing/matchLength));
+    d3.select("#cumulativeLoss").text(lastRow.cumulativeLoss);
+    d3.select("#lossPerSec").text((lastRow.cumulativeLoss/matchLength).toFixed(2));
+
     console.log("Packet losses", data.map(function(r) { return r.incrementalLoss; }).join(' '));
 
     // Hide the "drop file" prompting
@@ -131,7 +139,6 @@ function processFile(dataText) {
 
     // Display the contents of the file
     var display = document.getElementById("results");
-    display.innerHTML = "<pre>" + dataText + "</pre>";
     display.style.display = "block";
 }
 
