@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> <meta charset="utf-8">
+<title>Simple drag and drop demo</title>
+<style type="text/css">
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Helvetica, Arial, sans; }
+#help {
+    width: 100%; height: 100%;
+    background-color: #ddd; font-size: 36pt; color: #444;
+    text-align: center; padding-top: 100px;
+}
+#results {
+    width: 100%; height: 100%;
+    background-color: #fff;
+    margin: 8px;
+    display: none;
+}
+
+</style>
+</head>
+
+<body>
+<div id="help">
+Drop files here<br>
+A demonstration of simple<br>
+HTML drag and drop<br>
+<a href="https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications">Based on this MDN tutorial</a>
+</div>
+<div id="results"></div>
+<script type="text/javascript">
+
+/* A demonstration of a basic web page that processes dropped files.
+ * This demo just shows the dropped file in a <pre> block on the page itself.
+ * Based on the MDN article https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
+ * Tested in Chrome, Firefox, Safari. Screw IE.
+ */
+
+// Register our own handler for drop events on the target element. Could also be document.body.
+var dropzone = document.getElementById("help");
+dropzone.addEventListener("dragenter", cancelEvent, false);
+dropzone.addEventListener("dragover", cancelEvent, false);
+dropzone.addEventListener("drop", drop, false);
+
+// Handler to cancel an event
+function cancelEvent(e) { e.stopPropagation(); e.preventDefault(); }
+
+// The drop event handler. Only properly handles files.
+function drop(e) {
+    // Pick out the file object we want. Could be multiple files; we only take first.
+    var files = e.dataTransfer.files;
+    var file = files[0];
+
+    // Cancel the drop event propagation. Note this clobbers the data in the event.
+    cancelEvent(e);
+
+    // Read in the file and hand it off to our application function
+    console.log("Processing", file.name);
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+        // Very basic error handling
+        if (e.target.error) {
+            console.log("Error loading file", e.target.error);
+            return;
+        }
+        // Grab the file contents from the event
+        var fileContents = e.target.result;
+        processFile(fileContents);
+    }
+
+    // Fire off the actual read process.
+    reader.readAsText(file);
+}
+
+// Demo function to handle data from the file dropped in
+function processFile(data) {
+    console.log("Data loaded");
+
+    // Hide the "drop file" prompting
+    dropzone.style.display = "none";
+
+    // Display the contents of the file
+    var display = document.getElementById("results");
+    display.innerHTML = "<pre>" + data + "</pre>";
+    display.style.display = "block";
+}
+
+</script>
+</body></html>
