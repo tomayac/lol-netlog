@@ -2,6 +2,7 @@
 <html lang="en">
 <head> <meta charset="utf-8">
 <title>LoL Netlog parser</title>
+<script src="d3.v3.min.js" charset="utf-8"></script>
 <style type="text/css">
 
 html, body { height: 100%; }
@@ -28,6 +29,7 @@ body { margin: 0; font-family: Helvetica, Arial, sans; }
 <p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
 <p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
 <tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
+<p>Or <a title="load demo" href="#" onclick="loadDemo();return false;">click here</a> to load a demo file</a>
 <h3>By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
 <div id="results"></div>
@@ -66,6 +68,16 @@ function drop(e) {
 
     // Fire off the actual read process.
     reader.readAsText(file);
+}
+
+function loadDemo() {
+    d3.text("demo.txt", function(error, data) {
+        if (error) {
+            console.log("Demo failed", error);
+            return;
+        }
+        processFile(data);
+    });
 }
 
 // Demo function to handle data from the file dropped in
