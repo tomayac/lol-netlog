@@ -108,6 +108,9 @@ function extract(data) {
     var match = null;
     var lastLoss = 0;
 
+    // TODO: handle disconnects intelligently.
+    // See 2014-05-19T17-12-35_netlog.txt
+
     // Loop through lines that look like CSV data
     while (match = parseRE.exec(data)) {
         // Split the row by comma
@@ -216,8 +219,6 @@ function drawChart(data) {
         .attr("class", "y axis")
         .attr("transform", "translate(" + (width+axisPadding) + ",0)")
         .call(yAxis);
-
-
 }
 
 loadDemo();
