@@ -2,7 +2,10 @@
 <html lang="en">
 <head> <meta charset="utf-8">
 <title>LoL Netlog parser</title>
+
 <script src="d3.v3.min.js" charset="utf-8"></script>
+<script src="moment.min.js"></script>
+
 <style type="text/css">
 
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
@@ -18,6 +21,7 @@ body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
     margin: 0 auto;
     display: none;
 }
+#timestamp { text-align: center; font-size: 24px; padding-bottom: 10px; }
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
 .pingLegend { font-size: 24px; fill: #44b; }
@@ -26,7 +30,7 @@ svg rect { fill: #b44; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis line { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis text { font-size: 12px; }
-#results { font-size: 24px; }
+#results { font-size: 20px; }
 table.numbers { max-width: 960px; margin: 0 auto; padding-bottom: 20px; }
 h1 { text-align: center; }
 td.r { text-align: right; padding-right: 4px; }
@@ -47,6 +51,9 @@ td.r { text-align: right; padding-right: 4px; }
 
 <div id="results">
 <h1>LoL Netlog parser</h1>
+<div id="timestamp">
+<span id="absoluteTS"></span><br><span id="relativeTS"></span>
+</div>
 <table class="numbers">
     <tr><td class="r" id="incoming"></td><td>bytes/s in</td></tr>
     <tr><td class="r" id="outgoing"></td><td>bytes/s out</td></tr>
@@ -60,7 +67,6 @@ td.r { text-align: right; padding-right: 4px; }
 </div>
 
 <script type="text/javascript">
-
 
 var dropzone = document.getElementById("help");
 dropzone.addEventListener("dragenter", cancelEvent, false);
@@ -112,17 +118,25 @@ function loadDemo() {
 // [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
 // Output: array of row objects.
 function extract(data) {
-    var result = [];
+    // TODO: handle disconnects intelligently.
+    // See 2014-05-19T17-12-35_netlog.txt
+    var result = {};
+
+    // Extract the time stamp
+    // Timestamp looks like "2014-05-17T17-19-31:"
+    var tsRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+):")
+    var tsMatch = tsRE.exec(data);
+    result.ts = moment(tsMatch[1], "YYYY-MM-DDTHH:mm:ss");
+
+    // Extract the time series
     // CSV data starts with a number and a comma
-    var parseRE = new RegExp("^\\d+,.*$", "gm");
+    result.csv = [];
+    var csvRE = new RegExp("^\\d+,.*$", "gm");
     var match = null;
     var lastLoss = 0;
 
-    // TODO: handle disconnects intelligently.
-    // See 2014-05-19T17-12-35_netlog.txt
-
     // Loop through lines that look like CSV data
-    while (match = parseRE.exec(data)) {
+    while (match = csvRE.exec(data)) {
         // Split the row by comma
         var cols = match[0].split(',');
         // Derive the incremental loss in this report
@@ -130,7 +144,7 @@ function extract(data) {
         var incrementalLoss = cumulativeLoss - lastLoss;
         lastLoss = cumulativeLoss;
         // Construct a result object
-        result.push({
+        result.csv.push({
             time: +cols[0],
             ping: +cols[8],
             cumulativeLoss: +cols[6],
@@ -144,10 +158,17 @@ function extract(data) {
 
 // Process log file data and display it
 function processFile(dataText) {
-    var data = extract(dataText);
+    var parsed = extract(dataText);
+    console.log(parsed.ts);
+    var data = parsed.csv;
     var lastRow = data[data.length - 1];
     var matchLength = lastRow.time / 1000;
 
+    // Display timestamp
+    d3.select("#absoluteTS").text(parsed.ts.format("dddd YYYY-MM-DD HH:mm"));
+    d3.select("#relativeTS").text(parsed.ts.fromNow());
+
+    // And various ping statistics
     d3.select("#gameLength").text(Math.round(matchLength/60));
     d3.select("#incoming").text(Math.round(lastRow.incoming/matchLength));
     d3.select("#outgoing").text(Math.round(lastRow.outgoing/matchLength));
@@ -156,6 +177,7 @@ function processFile(dataText) {
     d3.select("#bestPing").text(d3.min(data, function(d) { return d.ping; }));
     d3.select("#medianPing").text(d3.median(data, function(d) { return d.ping; }));
 
+    // And draw the chart
     drawChart(data);
 
     // Hide the "drop file" prompting
@@ -249,7 +271,7 @@ function drawChart(data) {
 
 }
 
-loadDemo();
+// loadDemo();
 
 </script>
 </body></html>
