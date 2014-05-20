@@ -5,8 +5,8 @@
 <script src="d3.v3.min.js" charset="utf-8"></script>
 <style type="text/css">
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Helvetica, Arial, sans; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
 #help {
     width: 100%; height: 100%;
     background-color: #ddd; color: #444;
@@ -18,8 +18,11 @@ body { margin: 0; font-family: Helvetica, Arial, sans; }
     margin: 0 auto;
     display: none;
 }
-svg path { fill: none; stroke: #000; stroke-linecap: round; stroke-width: 3.5px; }
+svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
+.pingLegend { font-size: 24px; fill: #44b; }
+.lossLegend { font-size: 18px; fill: #b44; }
+.axisLegend { font-size: 12px; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis line { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis text { font-size: 12px; }
@@ -45,13 +48,13 @@ td.r { text-align: right; padding-right: 4px; }
 <div id="results">
 <h1>LoL Netlog parser</h1>
 <table class="numbers">
-    <tr><td class="r" id="gameLength"></td><td>minutes</td></tr>
     <tr><td class="r" id="incoming"></td><td>bytes/s in</td></tr>
     <tr><td class="r" id="outgoing"></td><td>bytes/s out</td></tr>
     <tr><td class="r" id="cumulativeLoss"></td><td>packets lost total</td></tr>
-    <tr><td class="r" id="lossPerSec"></td><td>packets/s lost on average</td></tr>
+    <tr><td class="r" id="lossPerSec"></td><td>packets lost/s</td></tr>
     <tr><td class="r" id="bestPing"></td><td>best ping</td></tr>
     <tr><td class="r" id="medianPing"></td><td>median ping</td></tr>
+    <tr><td class="r" id="gameLength"></td><td>minutes</td></tr>
 </table>
 <div id="lossGraph"></div>
 </div>
@@ -169,10 +172,12 @@ function drawChart(data) {
     console.log("Pings", data.map(function(r) { return r.ping; }).join(' '));
 
     // Chart layout
-    var margin = {top: 10, right: 50, bottom: 50, left: 10};
+    var margin = {top: 10, right: 70, bottom: 50, left: 10};
     var width = 960 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
-    var axisPadding = 10;
+        height = 350 - margin.top - margin.bottom;
+    var axisPadding = 8;
+    var lossGraphHeight = 70;   // area reserved below the X axis for reflected loss graph
+    var lossGraphStart = axisPadding*2 + 15;    // accounts for axisPadding
 
     // Construct the chart SVG with standard margins
     var svg = d3.select("#lossGraph").append("svg")
@@ -188,8 +193,8 @@ function drawChart(data) {
 
     // X and Y scaling
     var timeX = d3.scale.linear().range([0, width]),
-        pingY = d3.scale.linear().range([height, 0]),
-        lossY = d3.scale.linear().range([height, 0]);
+        pingY = d3.scale.linear().range([height-lossGraphHeight, 0]),
+        lossY = d3.scale.linear().range([0, lossGraphHeight]);
     timeX = timeX.domain([0, d3.max(data, timeData)]);
     pingY = pingY.domain([0, 1000]);
     lossY = lossY.domain([0, 20]);
@@ -201,11 +206,11 @@ function drawChart(data) {
                 .enter().append("g")
                   .attr("class", "bar")
                   .attr("transform", function(d) {
-                        return "translate(" + timeX(timeData(d)) + "," + lossY(lossData(d)) + ")"; });
+                        return "translate(" + timeX(timeData(d)) + "," + ((height-lossGraphHeight)+lossGraphStart) + ")"; });
     bar.append("rect")
         .attr("x", 1)
         .attr("width", barWidth)
-        .attr("height", function(d) { return height - lossY(lossData(d)); });
+        .attr("height", function(d) { return lossY(lossData(d)); });
 
     // Draw a line for the time series of ping
     svg.append("path")
@@ -216,16 +221,32 @@ function drawChart(data) {
 
     // And some axes
     var xAxis = d3.svg.axis().scale(timeX).orient("bottom"),
-        yAxis = d3.svg.axis().scale(pingY).orient("right").ticks(6);
+        yAxis = d3.svg.axis().scale(pingY).orient("right").ticks(6),
+        lossAxis = d3.svg.axis().scale(lossY).orient("right").ticks(3);
 
     svg.append("svg:g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height+axisPadding) + ")")
+        .attr("transform", "translate(0," + (height+axisPadding-lossGraphHeight) + ")")
         .call(xAxis);
     svg.append("svg:g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + (width+axisPadding) + ",0)")
         .call(yAxis);
+    svg.append("svg:g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (width+axisPadding) + "," + (height-lossGraphHeight+lossGraphStart) + ")")
+        .call(lossAxis);
+
+    // And a legend
+    svg.append("svg:text").attr("class", "pingLegend").text("Ping")
+        .attr("transform", "translate(30, 30)");
+    svg.append("svg:text").attr("class", "lossLegend").text("Lost packets")
+        .attr("transform", "translate(30, " + (height+lossGraphStart) + ")");
+    svg.append("svg:text").attr("class", "axisLegend").text("milliseconds")
+        .attr("transform", "translate(" + (width+margin.right-10) + ",0) rotate(90) ");
+    svg.append("svg:text").attr("class", "axisLegend").text("packets")
+        .attr("transform", "translate(" + (width+margin.right-10) + "," + (height-10) + ") rotate(90) ");
+
 }
 
 loadDemo();
