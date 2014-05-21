@@ -21,6 +21,8 @@ body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
     margin: 0 auto;
     display: none;
 }
+div.uploadControl { margin-top: 10px; margin-bottom: 100px; }
+input { margin-right: 10px; }
 #timestamp { text-align: center; font-size: 24px; padding-bottom: 10px; }
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
@@ -32,7 +34,8 @@ svg rect { fill: #b44; }
 .axis text { font-size: 12px; }
 #results { font-size: 20px; }
 table.numbers { max-width: 960px; margin: 0 auto; padding-bottom: 20px; }
-h1 { text-align: center; }
+h1 { text-align: center; margin-bottom: 50px;  }
+h3.attribution { margin-top: 100px; }
 td.r { text-align: right; padding-right: 4px; }
 </style>
 </head>
@@ -40,13 +43,22 @@ td.r { text-align: right; padding-right: 4px; }
 <body>
 
 <div id="help">
+
 <h1>LoL Netlog parser</h1>
 <h2>Drop a log file on this web page</h2>
+
+<div class="uploadControl"><span class="uploadControl">
+<label><input type="checkbox" id="uploadCheckbox" checked="true">Upload a copy of the logfile (optional)</input></label>
+</span></div>
+
+<h2>Log file location</h2>
+
 <p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
 <p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
 <tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
 <p>Or <a title="load demo" href="#" onclick="loadDemo();return false;">click here</a> to load a demo file</a>
-<h3>By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
+
+<h3 class="attribution">By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
 
 <div id="results">
@@ -96,7 +108,9 @@ function handleFile(file) {
         var fileContents = e.target.result;
 
         // Asynchronously upload the file contents to the server
-        uploadDataText(fileContents);
+        if (d3.select("#uploadCheckbox").property('checked')) {
+            uploadDataText(fileContents);
+        }
 
         // And process it locally
         processDataText(fileContents);
@@ -173,7 +187,6 @@ function uploadDataText(dataText) {
         if (error) {
             console.log("Error uploading data", error);
         }
-        console.log("Data uploaded. Response", response);
     })
 }
 
@@ -209,9 +222,6 @@ function displayData(parsed) {
 
 // Draw a chart of the data timeseries
 function drawChart(data) {
-    console.log("Packet losses", data.map(function(r) { return r.incrementalLoss; }).join(' '));
-    console.log("Pings", data.map(function(r) { return r.ping; }).join(' '));
-
     // Chart layout
     var margin = {top: 10, right: 70, bottom: 50, left: 10};
     var width = 960 - margin.left - margin.right,
