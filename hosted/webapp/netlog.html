@@ -213,11 +213,10 @@ function displayData(parsed) {
     drawChart(data);
 
     // Hide the "drop file" prompting
-    dropzone.style.display = "none";
+    d3.select("#help").style("display", "none");
 
     // Display the contents of the file
-    var display = document.getElementById("results");
-    display.style.display = "block";
+    d3.select("#results").style("display", "block");
 }
 
 // Draw a chart of the data timeseries
@@ -230,6 +229,8 @@ function drawChart(data) {
     var lossGraphHeight = 70;   // area reserved below the X axis for reflected loss graph
     var lossGraphStart = axisPadding*2 + 15;    // accounts for axisPadding
 
+    // Remove any previous chart
+    d3.select("#lossGraph>svg").remove();
     // Construct the chart SVG with standard margins
     var svg = d3.select("#lossGraph").append("svg")
                     .attr("width", width + margin.left + margin.right)
@@ -301,7 +302,7 @@ function drawChart(data) {
 }
 
 
-var dropzone = document.getElementById("help");
+var dropzone = document.body;
 dropzone.addEventListener("dragenter", cancelEvent, false);
 dropzone.addEventListener("dragover", cancelEvent, false);
 dropzone.addEventListener("drop", drop, false);
