@@ -94,7 +94,12 @@ function handleFile(file) {
         }
         // Grab the file contents from the event
         var fileContents = e.target.result;
-        processFile(fileContents);
+
+        // Asynchronously upload the file contents to the server
+        uploadDataText(fileContents);
+
+        // And process it locally
+        processDataText(fileContents);
     }
 
     // Fire off the actual read process.
@@ -108,7 +113,7 @@ function loadDemo() {
             console.log("Demo failed", error);
             return;
         }
-        processFile(data);
+        processDataText(data);
     });
 }
 
@@ -156,9 +161,24 @@ function extract(data) {
 }
 
 // Process log file data and display it
-function processFile(dataText) {
+function processDataText(dataText) {
     var parsed = extract(dataText);
-    console.log(parsed.ts);
+    displayData(parsed);
+}
+
+// Upload log file data text to a server
+function uploadDataText(dataText) {
+    var xhr = d3.xhr('http://www.somebits.com/store-lol-netlog')
+    xhr.post(dataText, function(error, response) {
+        if (error) {
+            console.log("Error uploading data", error);
+        }
+        console.log("Data uploaded. Response", response);
+    })
+}
+
+// Display the parsed data
+function displayData(parsed) {
     var data = parsed.csv;
     var lastRow = data[data.length - 1];
     var matchLength = lastRow.time / 1000;
