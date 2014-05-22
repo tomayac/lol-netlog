@@ -4,9 +4,9 @@
 # Not bullet proof or scalable, but suitable for a small CGI
 # REST nerds will say this should be a PUT.
 
-destDir = '/home/nelson/lol-netlog/logs'
+destDir = '/var/www/lol-netlogs/'
 
-import os, sys, time, contextlib
+import os, sys, time, contextlib, uuid
 
 # Do something in reponse to non-POSTs
 if os.environ.get("REQUEST_METHOD", None) != "POST":
@@ -20,8 +20,8 @@ postdata=sys.stdin.read(100000)
 sys.stdin.close()
 
 # Generate a unique filename
-ip = os.environ.get('REMOTE_ADDR', '?.?.?.?')
-fn = "%s/%s-%s-%s" % (destDir,time.time(), os.getpid(), ip)
+bn = uuid.uuid4().hex
+fn = "%s/%s" % (destDir, bn)
 
 # Write the data to the file
 with contextlib.closing(file(fn, "w")) as fp:
@@ -31,7 +31,7 @@ with contextlib.closing(file(fn, "w")) as fp:
 print 'Content-Type: text/plain'
 print 'Access-Control-Allow-Origin: *'
 print
-print 'OK %d bytes' % len(postdata)
+print bn
 
 # Exit
 sys.exit(0)
