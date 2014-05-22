@@ -14,6 +14,7 @@ body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
     width: 100%; height: 100%;
     background-color: #ddd; color: #444;
     text-align: center; padding-top: 100px;
+    display: none;
 }
 #results {
     background-color: #fff;
@@ -56,7 +57,7 @@ td.r { text-align: right; padding-right: 4px; }
 <p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
 <p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
 <tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
-<p>Or <a title="load demo" href="#" onclick="loadDemo();return false;">click here</a> to load a demo file</a>
+<p>Or <a title="load demo" href="" onclick="loadDemo(); return false;">click here</a> to load a demo file</a>
 
 <h3 class="attribution">By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
@@ -122,7 +123,19 @@ function handleFile(file) {
 
 // Load a canned log file as a demo
 function loadDemo() {
-    d3.text("demo.txt", function(error, data) {
+    window.location = '#91b4cc432544489782c4197a46e4805a';
+    loadFileFromHash();
+}
+
+// Load a file in the hash of the URL
+function loadFileFromHash() {
+    var fn = window.location.hash.substr(1);
+    loadUrl('http://www.somebits.com/lol-netlogs/' + fn);
+}
+
+// Load an arbitrary URL as a logfile and process it.
+function loadUrl(url) {
+    d3.text(url, function(error, data) {
         if (error) {
             console.log("Demo failed", error);
             return;
@@ -187,6 +200,8 @@ function uploadDataText(dataText) {
         if (error) {
             console.log("Error uploading data", error);
         }
+        // Set the hash of the URL to the new filename
+        window.location = "#" + response.response;
     })
 }
 
@@ -301,13 +316,17 @@ function drawChart(data) {
 
 }
 
-
+// Register for drag and drop on the whole page
 var dropzone = document.body;
 dropzone.addEventListener("dragenter", cancelEvent, false);
 dropzone.addEventListener("dragover", cancelEvent, false);
 dropzone.addEventListener("drop", drop, false);
 
 // loadDemo();
-
+if (window.location.hash.length == 33) {
+    loadFileFromHash();
+} else {
+    d3.select("#help").style("display", "block");
+}
 </script>
 </body></html>
