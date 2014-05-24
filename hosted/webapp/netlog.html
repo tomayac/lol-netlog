@@ -57,7 +57,11 @@ td.r { text-align: right; padding-right: 4px; }
 <p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
 <p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
 <tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
-<p>Or <a title="load demo" href="" onclick="loadDemo(); return false;">click here</a> to load a demo file</a>
+<p>Or try these demos:
+  <a title="good game" href="" onclick="loadDemo('00c6474be8354c6c94862f3e4a57cc5f'); return false;">good game</a>,
+  <a title="bad game" href="" onclick="loadDemo('91b4cc432544489782c4197a46e4805a'); return false;">bad game</a>.
+</p>
+
 
 <h3 class="attribution">By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
 </div>
@@ -122,8 +126,8 @@ function handleFile(file) {
 }
 
 // Load a canned log file as a demo
-function loadDemo() {
-    window.location = '#91b4cc432544489782c4197a46e4805a';
+function loadDemo(id) {
+    window.location = '#' + id;
     loadFileFromHash();
 }
 
