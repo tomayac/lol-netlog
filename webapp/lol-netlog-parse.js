@@ -12,7 +12,6 @@
 
 /* TODO
  * handle disconnects intelligently See 2014-05-19T17-12-35_netlog.txt
- * handle old-style logs correctly
  * test with non-US clients
  */
 
@@ -42,13 +41,15 @@ function parseLolNetlog(data) {
     var result = { 'valid': false };
 
     // Extract the time stamp from the first line.
-    // Timestamp looks like "2014-05-17T17-19-31:"
-    var timestampRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+): LogOut_File: : logfile started")
+    // Timestamp looks like "2014-05-17T17-19-31" or "Fri May 24 16:19:23 2013"
+    var timestampRE = /^(\d+-\d+-\d+T\d+-\d+-\d+)|(\w\w\w \w\w\w \d\d \d\d:\d\d:\d\d \d\d\d\d): LogOut_File: : logfile started/;
     var timestampMatch = timestampRE.exec(data);
     if (!timestampMatch) {
         return result;
     }
-    result.start = moment(timestampMatch[1], "YYYY-MM-DDTHH:mm:ss");
+    result.start = (timestampMatch[1] ?
+                      moment(timestampMatch[1], "YYYY-MM-DDTHH:mm:ss") :
+                      moment(timestampMatch[2].substr(4), "MMM D HH:mm:ss YYYY"));
 
     // Extract the time series. Lines look like this:
     // 56850,X.X.X.X,18037,3613,3045,580,1,113,73,49,0,0,7,0
