@@ -9,24 +9,43 @@
  * By Nelson Minar <nelson@monkey.org>, available under BSD license.
  */
 
-// Pull just the CSV data out of the logfile
-// Input format is:
+/* Extract data from a logfile as a multiline text string.
+ * Output object format:
+ *
+ * start: timestamp of the logfile start, a MomentJS object
+ * ts: array of timeseries samples from the logfile, converted to numbers where appropriate. Contents:
+ *   time: time of logging, milliseconds since game start. Log is typically every 10 seconds
+ *   incoming: total bytes sent to client from server
+ *   outgoing: total bytes sent from client to server
+ *   appCtos: client to server bytes delta excluding overheads (app data only)
+ *   appStoc: server to client bytes delta excluding overheads (app data only)
+ *   cumulativeLoss: number of packets lost since start
+ *   incrementalLoss: number of packets lost since last frame
+ *   sent: number of packets sent. (by server? by client? by both?)
+ *   ping: LoL client reported ping. Milliseconds, but a 10 second average with some lag info mixed in
+ *   variance: how much the ping is changing from avg ping
+ *   reliableDelayed: reliable packets dropped from sending this frame because we are sending to much data
+ *   unreliableDelayed: unreliable packets dropped from sending this frame because we are sending to much data
+ *   appUpdateDelayed: delayed packets because the app is taking to long to run code caused by network packets
+ *   criticalTime: Time spent in critical section (frame)
+ *   (Note we do not extract address from the logfile; Riot is no longer including useful info for that.)
+ */
+
+// TODO: handle disconnects intelligently See 2014-05-19T17-12-35_netlog.txt
 // [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
-// Output: array of row objects.
 function parseLolNetlog(data) {
-    // TODO: handle disconnects intelligently.
-    // See 2014-05-19T17-12-35_netlog.txt
     var result = {};
 
     // Extract the time stamp
     // Timestamp looks like "2014-05-17T17-19-31:"
-    var tsRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+):")
-    var tsMatch = tsRE.exec(data);
-    result.ts = moment(tsMatch[1], "YYYY-MM-DDTHH:mm:ss");
+    var timestampRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+):")
+    var timestampMatch = timestampRE.exec(data);
+    result.start = moment(timestampMatch[1], "YYYY-MM-DDTHH:mm:ss");
 
-    // Extract the time series
+    // Extract the time series. Lines look like this:
+    // 56850,X.X.X.X,18037,3613,3045,580,1,113,73,49,0,0,7,0
     // CSV data starts with a number and a comma
-    result.csv = [];
+    result.ts = [];
     var csvRE = new RegExp("^\\d+,.*$", "gm");
     var match = null;
     var lastLoss = 0;
@@ -35,18 +54,30 @@ function parseLolNetlog(data) {
     while (match = csvRE.exec(data)) {
         // Split the row by comma
         var cols = match[0].split(',');
+
         // Derive the incremental loss in this report
         var cumulativeLoss = +cols[6];
         var incrementalLoss = cumulativeLoss - lastLoss;
         lastLoss = cumulativeLoss;
-        // Construct a result object
-        result.csv.push({
+
+        // Add this row to the timeseries
+        result.ts.push({
             time: +cols[0],
-            ping: +cols[8],
+            // address: cols[1],
+            incoming: +cols[2],
+            outgoing: +cols[3],
+            appCtos: +cols[4],
+            appStoc: +cols[5],
             cumulativeLoss: +cols[6],
             incrementalLoss: incrementalLoss,
-            incoming: +cols[2],
-            outgoing: +cols[3]});
+            sent: +cols[7],
+            ping: +cols[8],
+            variance: +cols[9],
+            reliableDelayed: +cols[10],
+            unreliableDelayed: +cols[11],
+            appUpdateDelayed: +cols[12],
+            criticalTime: +cols[13],
+        })
     }
 
     return result;

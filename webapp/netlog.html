@@ -169,13 +169,13 @@ function uploadDataText(dataText) {
 
 // Display the parsed data
 function displayData(parsed) {
-    var data = parsed.csv;
+    var data = parsed.ts;
     var lastRow = data[data.length - 1];
     var matchLength = lastRow.time / 1000;
 
     // Display timestamp
-    d3.select("#absoluteTS").text(parsed.ts.format("dddd YYYY-MM-DD HH:mm"));
-    d3.select("#relativeTS").text(parsed.ts.fromNow());
+    d3.select("#absoluteTS").text(parsed.start.format("dddd YYYY-MM-DD HH:mm"));
+    d3.select("#relativeTS").text(parsed.start.fromNow());
 
     // And various ping statistics
     d3.select("#gameLength").text(Math.round(matchLength/60));
