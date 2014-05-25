@@ -19,6 +19,7 @@
 /* Extract data from a logfile as a multiline text string.
  * Output object format:
  *
+ * valid: boolean, is it a valid logfile?
  * start: timestamp of the logfile start, a MomentJS object
  * ts: array of timeseries samples from the logfile, converted to numbers where appropriate. Contents:
  *   time: time of logging, milliseconds since game start. Log is typically every 10 seconds
@@ -38,12 +39,15 @@
  *   (Note we do not extract address from the logfile; Riot is no longer including useful info for that.)
  */
 function parseLolNetlog(data) {
-    var result = {};
+    var result = { 'valid': false };
 
-    // Extract the time stamp
+    // Extract the time stamp from the first line.
     // Timestamp looks like "2014-05-17T17-19-31:"
-    var timestampRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+):")
+    var timestampRE = new RegExp("^(\\d+-\\d+-\\d+T\\d+-\\d+-\\d+): LogOut_File: : logfile started")
     var timestampMatch = timestampRE.exec(data);
+    if (!timestampMatch) {
+        return result;
+    }
     result.start = moment(timestampMatch[1], "YYYY-MM-DDTHH:mm:ss");
 
     // Extract the time series. Lines look like this:
@@ -67,6 +71,7 @@ function parseLolNetlog(data) {
         result.ts.push(row);
     }
 
+    result.valid = true;
     return result;
 }
 

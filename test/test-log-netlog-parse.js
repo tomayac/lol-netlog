@@ -4,7 +4,8 @@ var moment = require('moment');
 var parse = require("../webapp/lol-netlog-parse")
 
 describe('lol-netlog-parse', function() {
-    var goodGameString, goodGameData;
+    var goodGameString;
+    var goodGameData;
 
     before(function(done) {
         fs.readFile('test/good-game.txt', 'utf-8', function(err, data) {
@@ -35,6 +36,13 @@ describe('lol-netlog-parse', function() {
     });
 
     describe('parseLolNetlog', function() {
+        it('Should be valid on valid input', function() {
+            goodGameData.should.have.property('valid', true);
+        });
+        it('Should be invalid on invalid input', function() {
+            parse.parseLolNetlog('').should.have.property('valid', false);
+            parse.parseLolNetlog('foobar').should.have.property('valid', false);
+        });
         it('Should parse the time stamp', function() {
             goodGameData.start.year().should.equal(2014);
             goodGameData.start.month().should.equal(5-1);
