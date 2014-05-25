@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+"""Python script to parse League of Legends netlogs
+Unrelated to the webapp, standalone tool."""
+
 import re, sys, optparse, os.path
 
 from optparse import OptionParser
