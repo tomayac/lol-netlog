@@ -9,6 +9,13 @@
  * By Nelson Minar <nelson@monkey.org>, available under BSD license.
  */
 
+
+/* TODO
+ * handle disconnects intelligently See 2014-05-19T17-12-35_netlog.txt
+ * handle old-style logs correctly
+ * test with non-US clients
+ */
+
 /* Extract data from a logfile as a multiline text string.
  * Output object format:
  *
@@ -30,36 +37,6 @@
  *   criticalTime: Time spent in critical section (frame)
  *   (Note we do not extract address from the logfile; Riot is no longer including useful info for that.)
  */
-
-// TODO: handle disconnects intelligently See 2014-05-19T17-12-35_netlog.txt
-
-/* Given a CSV row from the logfile, parse it out into a nice object.
- * input format is
- * [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
- */
-function _parseCsvRow(row) {
-    // Split the row by comma
-    var cols = row.split(',');
-
-    // Parse the fields as numbers and return a labelled object
-    return {
-        time: +cols[0],
-        // address: cols[1],
-        incoming: +cols[2],
-        outgoing: +cols[3],
-        appCtos: +cols[4],
-        appStoc: +cols[5],
-        cumulativeLoss: +cols[6],
-        sent: +cols[7],
-        ping: +cols[8],
-        variance: +cols[9],
-        reliableDelayed: +cols[10],
-        unreliableDelayed: +cols[11],
-        appUpdateDelayed: +cols[12],
-        criticalTime: +cols[13],
-    };
-}
-
 function parseLolNetlog(data) {
     var result = {};
 
@@ -93,10 +70,36 @@ function parseLolNetlog(data) {
     return result;
 }
 
+/* Given a CSV row from the logfile, parse it out into a nice object.
+ * input format is
+ * [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
+ */
+function _parseCsvRow(row) {
+    // Split the row by comma
+    var cols = row.split(',');
 
-// export this for require.js
-if (typeof exports == 'undefined'){
-    var exports = this['mymodule'] = {};
+    // Parse the fields as numbers and return a labelled object
+    return {
+        time: +cols[0],
+        // address: cols[1],
+        incoming: +cols[2],
+        outgoing: +cols[3],
+        appCtos: +cols[4],
+        appStoc: +cols[5],
+        cumulativeLoss: +cols[6],
+        sent: +cols[7],
+        ping: +cols[8],
+        variance: +cols[9],
+        reliableDelayed: +cols[10],
+        unreliableDelayed: +cols[11],
+        appUpdateDelayed: +cols[12],
+        criticalTime: +cols[13],
+    };
 }
-exports._parseCsvRow = _parseCsvRow; // for testing
-exports.parseLolNetlog = parseLolNetlog;
+
+// Stuff required to run in Node.js environment
+if (typeof exports != 'undefined') {
+    var moment = require('moment');
+    exports._parseCsvRow = _parseCsvRow; // for testing
+    exports.parseLolNetlog = parseLolNetlog;
+}
