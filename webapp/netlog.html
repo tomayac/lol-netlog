@@ -102,6 +102,8 @@ function drop(e) {
 }
 
 function handleFile(file) {
+    // Update the URL to indicate the file is so far not uploaded
+    window.location.hash = "#not-uploaded";
     // Read in the file and hand it off to our application function
     var reader = new FileReader();
     reader.onloadend = function(e) {
@@ -278,17 +280,27 @@ function drawChart(data) {
 
 }
 
+// Show whichever view is appropriate based on our URL. FSM bless AJAX.
+function showPageBasedOnUrl() {
+    console.log("Showing new page..", window.location.href);
+    if (window.location.hash.length == 33) {
+        loadFileFromHash();
+    } else if (window.location.hash == "#not-uploaded") {
+        // Do nothing; probably got here via the back button, but the data is lost
+    } else {
+        d3.select("#help").style("display", "block");
+    }
+}
+
 // Register for drag and drop on the whole page
 var dropzone = document.body;
 dropzone.addEventListener("dragenter", cancelEvent, false);
 dropzone.addEventListener("dragover", cancelEvent, false);
 dropzone.addEventListener("drop", drop, false);
 
-// loadDemo();
-if (window.location.hash.length == 33) {
-    loadFileFromHash();
-} else {
-    d3.select("#help").style("display", "block");
-}
+showPageBasedOnUrl();
+
+window.addEventListener("popstate", showPageBasedOnUrl, false);
+
 </script>
 </body></html>
