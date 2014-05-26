@@ -6,7 +6,7 @@
 
 destDir = '/var/www/lol-netlogs/'
 
-import os, sys, time, contextlib, uuid
+import os, sys, time, contextlib, base64, hashlib
 
 # Do something in reponse to non-POSTs
 if os.environ.get("REQUEST_METHOD", None) != "POST":
@@ -19,13 +19,15 @@ if os.environ.get("REQUEST_METHOD", None) != "POST":
 postdata=sys.stdin.read(100000)
 sys.stdin.close()
 
-# Generate a unique filename
-bn = uuid.uuid4().hex
+# Generate a unique filename from a hash of file contents
+# A crypto hash is overkill here but it's the best option in stock Python
+bn = base64.urlsafe_b64encode(hashlib.md5(postdata).digest()).rstrip('=')
 fn = "%s/%s" % (destDir, bn)
 
-# Write the data to the file
-with contextlib.closing(file(fn, "w")) as fp:
-    fp.write(postdata)
+# Write the data to the file if it's not already there
+if not os.path.isfile(fn):
+    with contextlib.closing(file(fn, "w")) as fp:
+        fp.write(postdata)
 
 # Send back an HTTP response
 print 'Content-Type: text/plain'
