@@ -6,7 +6,8 @@
     "dependencies": {
         "express": "*",
         "node-uuid": "*",
-        "raw-body": "*"
+        "raw-body": "*",
+        "murmurhash3js": "*"
     },
     "start": "node store-netlog.js"
 }

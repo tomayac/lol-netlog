@@ -2,9 +2,10 @@ var serverPort = 8002;
 var destDir = '/tmp/nl/';
 
 var express = require('express'),
-       uuid = require('node-uuid'),
-         fs = require('fs'),
- getRawBody = require('raw-body');
+    uuid = require('node-uuid'),
+    fs = require('fs'),
+    getRawBody = require('raw-body'),
+    murmurHash3 = require("murmurhash3js");
 
 var app = express();
 
@@ -28,19 +29,26 @@ app.use(function (req, res, next) {
     })
 });
 
+// Generate a filename for the content
+function fnForLog(data) {
+    // 64 bit content hash; should be sufficient for collisions
+    return murmurHash3.x64.hash128(data).substr(0, 16);
+}
+
 // Handle POST / (should be PUT?)
 app.post('/', function(req, res) {
     // TODO: handle too-large input more gracefully
     var postData = req.text;
 
-    // TODO: generate from content hash
-    var bn = uuid.v4();
+    var bn = fnForLog(postData);
     var fn = destDir + '/' + bn;
 
-    // TODO: check if file exists
-    fs.writeFile(fn, postData, function(err) {
-        if (err) throw err;
-    });
+    fs.exists(fn, function(exists) {
+        if (!exists) {
+            fs.writeFile(fn, postData, function(err) {
+                if (err) throw err;
+            });
+    }});
 
     res.set('Content-Type', 'text/plain');
     res.set('Access-Control-Allow-Origin: *');
