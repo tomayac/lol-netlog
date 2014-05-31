@@ -1,0 +1,12 @@
+{
+    "name": "lol-netlog",
+    "description": "LoL Netlog parser server",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "express": "*",
+        "node-uuid": "*",
+        "raw-body": "*"
+    },
+    "start": "node store-netlog.js"
+}
