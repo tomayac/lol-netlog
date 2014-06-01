@@ -285,7 +285,7 @@ dropzone.addEventListener("dragover", cancelEvent, false);
 dropzone.addEventListener("drop", drop, false);
 
 // loadDemo();
-if (window.location.hash.length == 33) {
+if (window.location.hash.length > 0) {
     loadFileFromHash();
 } else {
     d3.select("#help").style("display", "block");
