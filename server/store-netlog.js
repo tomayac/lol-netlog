@@ -40,12 +40,26 @@ app.use(function (req, res, next) {
 });
 
 
-// Code to generate a filename based on uploaded content
+// Generate a filename based on uploaded content
 function fnForLog(data) {
     // 64 bit content hash; should be sufficient for collisions
     return murmurHash3.x64.hash128(data).substr(0, 16);
 }
 
+// Process an incoming logfile; return the filename for the logfile to
+// give back to the requesting client
+function handleLog(data) {
+    var bn = fnForLog(data);
+    var fn = destDir + '/' + bn;
+
+    fs.exists(fn, function(exists) {
+        if (!exists) {
+            fs.writeFile(fn, data, function(err) {
+                if (err) throw err;
+            });
+    }});
+    return bn;
+}
 
 // Handle GET /
 app.get('/', function(req, res) {
@@ -57,22 +71,12 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res) {
     // TODO: handle too-large input more gracefully
     var postData = req.text;
-
-    var bn = fnForLog(postData);
-    var fn = destDir + '/' + bn;
-
-    fs.exists(fn, function(exists) {
-        if (!exists) {
-            fs.writeFile(fn, postData, function(err) {
-                if (err) throw err;
-            });
-    }});
+    var filename = handleLog(postData);
 
     res.set('Content-Type', 'text/plain');
     res.set('Access-Control-Allow-Origin: *');
-    res.send(bn);
+    res.send(filename);
 });
-
 
 // And listen on the port
 var server = app.listen(serverPort, function() {
