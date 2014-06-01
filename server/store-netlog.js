@@ -1,21 +1,31 @@
-var serverPort = 8002;
-var destDir = '/tmp/nl/';
-
+// Module imports
 var express = require('express'),
     uuid = require('node-uuid'),
     fs = require('fs'),
     getRawBody = require('raw-body'),
     murmurHash3 = require("murmurhash3js");
 
+// Build the application server
 var app = express();
 
-// Handle GET /
-app.get('/', function(req, res) {
-    res.set('Content-Type', 'text/plain');
-    res.send("Server supports POST only\n");
+
+// Server configuration
+var serverPort = 8002,
+    destDir = '/tmp/nl/';
+
+if ('production' == app.get('env')) {
+    destDir = '/var/www/lol-netlogs/';
+} else {
+    console.log('Running in development mode');
+}
+
+// Enable CORS on requests
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
 });
 
-// Middleware to read POST bodies
+// Install middleware to read POST bodies
 app.use(function (req, res, next) {
     getRawBody(req, {
         length: req.headers['content-length'],
@@ -29,11 +39,19 @@ app.use(function (req, res, next) {
     })
 });
 
-// Generate a filename for the content
+
+// Code to generate a filename based on uploaded content
 function fnForLog(data) {
     // 64 bit content hash; should be sufficient for collisions
     return murmurHash3.x64.hash128(data).substr(0, 16);
 }
+
+
+// Handle GET /
+app.get('/', function(req, res) {
+    res.set('Content-Type', 'text/plain');
+    res.send("Server supports POST only\n");
+});
 
 // Handle POST / (should be PUT?)
 app.post('/', function(req, res) {
@@ -55,7 +73,9 @@ app.post('/', function(req, res) {
     res.send(bn);
 });
 
+
+// And listen on the port
 var server = app.listen(serverPort, function() {
-    console.log('Listening on port %d', server.address().port);
+    console.log('Listening on %s:%s writing to %s', server.address().address, server.address().port, destDir);
 });
 
