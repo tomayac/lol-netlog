@@ -61,7 +61,6 @@ describe('lol-netlog-parse', function() {
             goodGameData.tsColumns.should.have.length(goodGameData.ts[0].length);
         });
         it('Should have correct incremental loss statistics', function() {
-            console.log(goodGameData.ts[22]);
             goodGameData.ts[21][5].should.equal(1);
             goodGameData.ts[22][5].should.equal(2);
             goodGameData.ts[23][5].should.equal(2);
