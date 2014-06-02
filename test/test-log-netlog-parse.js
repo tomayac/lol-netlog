@@ -25,19 +25,7 @@ describe('lol-netlog-parse', function() {
     describe('_parseCsvRow', function() {
         it('Should parse a sample row', function() {
             var result = parse._parseCsvRow('106951,X.X.X.X,48277,8397,4553,580,3,204,45,8,0,0,7,0');
-            result.should.have.property('time', 106951);
-            result.should.have.property('incoming', 48277);
-            result.should.have.property('outgoing', 8397);
-            result.should.have.property('appCtos', 4553);
-            result.should.have.property('appStoc', 580);
-            result.should.have.property('cumulativeLoss', 3);
-            result.should.have.property('sent', 204);
-            result.should.have.property('ping', 45);
-            result.should.have.property('variance', 8);
-            result.should.have.property('reliableDelayed', 0);
-            result.should.have.property('unreliableDelayed', 0);
-            result.should.have.property('appUpdateDelayed', 7);
-            result.should.have.property('criticalTime', 0);
+            result.should.deep.equal([106951,48277,8397,4553,580,3,204,45,8,0,0,7,0]);
         });
     });
 
@@ -68,6 +56,17 @@ describe('lol-netlog-parse', function() {
         });
         it('Should have the right number of rows in the ts', function() {
             goodGameData.ts.should.have.length(154);
+        });
+        it('Should have a doc string with the right number of items', function() {
+            goodGameData.tsColumns.should.have.length(goodGameData.ts[0].length);
+        });
+        it('Should have correct incremental loss statistics', function() {
+            console.log(goodGameData.ts[22]);
+            goodGameData.ts[21][5].should.equal(1);
+            goodGameData.ts[22][5].should.equal(2);
+            goodGameData.ts[23][5].should.equal(2);
+            goodGameData.ts[22][13].should.equal(1);
+            goodGameData.ts[23][13].should.equal(0);
         });
     });
 });

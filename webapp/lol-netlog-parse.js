@@ -20,21 +20,23 @@
  *
  * valid: boolean, is it a valid logfile?
  * start: timestamp of the logfile start, a MomentJS object
- * ts: array of timeseries samples from the logfile, converted to numbers where appropriate. Contents:
- *   time: time of logging, milliseconds since game start. Log is typically every 10 seconds
- *   incoming: total bytes sent to client from server
- *   outgoing: total bytes sent from client to server
- *   appCtos: client to server bytes delta excluding overheads (app data only)
- *   appStoc: server to client bytes delta excluding overheads (app data only)
- *   cumulativeLoss: number of packets lost since start
- *   incrementalLoss: number of packets lost since last frame
- *   sent: number of packets sent. (by server? by client? by both?)
- *   ping: LoL client reported ping. Milliseconds, but a 10 second average with some lag info mixed in
- *   variance: how much the ping is changing from avg ping
- *   reliableDelayed: reliable packets dropped from sending this frame because we are sending to much data
- *   unreliableDelayed: unreliable packets dropped from sending this frame because we are sending to much data
- *   appUpdateDelayed: delayed packets because the app is taking to long to run code caused by network packets
- *   criticalTime: Time spent in critical section (frame)
+ * tsColumns: documentation string for ths ts row format.
+ * ts: array of timeseries samples from the logfile, converted to numbers where appropriate.
+ * Each row in the ts array is one CSV sample, itself an array with the following parameters:
+ *   0: time: time of logging, milliseconds since game start. Log is typically every 10 seconds
+ *   1: incoming: total bytes sent to client from server
+ *   2: outgoing: total bytes sent from client to server
+ *   3: appCtos: client to server bytes delta excluding overheads (app data only)
+ *   4: appStoc: server to client bytes delta excluding overheads (app data only)
+ *   5: cumulativeLoss: number of packets lost since start
+ *   6: sent: number of packets sent. (by server? by client? by both?)
+ *   7: ping: LoL client reported ping. Milliseconds, but a 10 second average with some lag info mixed in
+ *   8: variance: how much the ping is changing from avg ping
+ *   9: reliableDelayed: reliable packets dropped from sending this frame because we are sending to much data
+ *   10: unreliableDelayed: unreliable packets dropped from sending this frame because we are sending to much data
+ *   11: appUpdateDelayed: delayed packets because the app is taking to long to run code caused by network packets
+ *   12: criticalTime: Time spent in critical section (frame)
+ *   13: incrementalLoss: number of packets lost since last frame
  *   (Note we do not extract address from the logfile; Riot is no longer including useful info for that.)
  */
 function parseLolNetlog(data) {
@@ -51,6 +53,9 @@ function parseLolNetlog(data) {
                       moment(timestampMatch[1], "YYYY-MM-DDTHH:mm:ss") :
                       moment(timestampMatch[2].substr(4), "MMM D HH:mm:ss YYYY"));
 
+    // Document the time series format. Maybe someday we can make a class to give object-style access.
+    result.tsColumns = ["time", "incoming", "outgoing", "app_ctos", "app_stoc", "loss", "sent", "ping", "variance", "reliable delayed", "unreliable delayed", "app update delayed", "Time spent in critical section (frame)", "incremental loss"];
+
     // Extract the time series. Lines look like this:
     // 56850,X.X.X.X,18037,3613,3045,580,1,113,73,49,0,0,7,0
     // CSV data starts with a number and a comma
@@ -65,8 +70,8 @@ function parseLolNetlog(data) {
         var row = _parseCsvRow(match[0]);
 
         // Derive the incremental loss in this report
-        row.incrementalLoss = row.cumulativeLoss - lastLoss;
-        lastLoss = row.cumulativeLoss;
+        row[13] = row[5] - lastLoss;
+        lastLoss = row[5];
 
         // Add it to the time series
         result.ts.push(row);
@@ -76,7 +81,7 @@ function parseLolNetlog(data) {
     return result;
 }
 
-/* Given a CSV row from the logfile, parse it out into a nice object.
+/* Given a CSV row from the logfile, parse it out into an integer array.
  * input format is
  * [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
  */
@@ -84,23 +89,23 @@ function _parseCsvRow(row) {
     // Split the row by comma
     var cols = row.split(',');
 
-    // Parse the fields as numbers and return a labelled object
-    return {
-        time: +cols[0],
-        // address: cols[1],
-        incoming: +cols[2],
-        outgoing: +cols[3],
-        appCtos: +cols[4],
-        appStoc: +cols[5],
-        cumulativeLoss: +cols[6],
-        sent: +cols[7],
-        ping: +cols[8],
-        variance: +cols[9],
-        reliableDelayed: +cols[10],
-        unreliableDelayed: +cols[11],
-        appUpdateDelayed: +cols[12],
-        criticalTime: +cols[13],
-    };
+    // Parse the fields as numbers and return an array
+    return [
+        +cols[0],
+        // cols[1] is the server address, no longer meaningful
+        +cols[2],
+        +cols[3],
+        +cols[4],
+        +cols[5],
+        +cols[6],
+        +cols[7],
+        +cols[8],
+        +cols[9],
+        +cols[10],
+        +cols[11],
+        +cols[12],
+        +cols[13],
+    ];
 }
 
 // Stuff required to run in Node.js environment

@@ -173,7 +173,7 @@ function uploadDataText(dataText) {
 function displayData(parsed) {
     var data = parsed.ts;
     var lastRow = data[data.length - 1];
-    var matchLength = lastRow.time / 1000;
+    var matchLength = lastRow[0] / 1000;
 
     // Display timestamp
     d3.select("#absoluteTS").text(parsed.start.format("dddd YYYY-MM-DD HH:mm"));
@@ -181,12 +181,12 @@ function displayData(parsed) {
 
     // And various ping statistics
     d3.select("#gameLength").text(Math.round(matchLength/60));
-    d3.select("#incoming").text(Math.round(lastRow.incoming/matchLength));
-    d3.select("#outgoing").text(Math.round(lastRow.outgoing/matchLength));
-    d3.select("#cumulativeLoss").text(lastRow.cumulativeLoss);
-    d3.select("#lossPerSec").text((lastRow.cumulativeLoss/matchLength).toFixed(2));
-    d3.select("#bestPing").text(d3.min(data, function(d) { return d.ping; }));
-    d3.select("#medianPing").text(d3.median(data, function(d) { return d.ping; }));
+    d3.select("#incoming").text(Math.round(lastRow[1]/matchLength));
+    d3.select("#outgoing").text(Math.round(lastRow[2]/matchLength));
+    d3.select("#cumulativeLoss").text(lastRow[5]);
+    d3.select("#lossPerSec").text((lastRow[5]/matchLength).toFixed(2));
+    d3.select("#bestPing").text(d3.min(data, function(d) { return d[7]; }));
+    d3.select("#medianPing").text(d3.median(data, function(d) { return d[7]; }));
 
     // And draw the chart
     drawChart(data);
@@ -218,9 +218,9 @@ function drawChart(data) {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Accessor functions for data to graph
-    var timeData = function(d) { return d.time / 60000; },
-        pingData = function(d) { return d.ping < 1000 ? d.ping: 999; },
-        lossData = function(d) { return d.incrementalLoss; };
+    var timeData = function(d) { return d[0] / 60000; },
+        pingData = function(d) { return d[7] < 1000 ? d[7]: 999; },
+        lossData = function(d) { return d[13]; };
 
     // X and Y scaling
     var timeX = d3.scale.linear().range([0, width]),
