@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set -eu
-rsync -avz \
+rsync -avz --delete \
     webapp/* \
     somebits.com:/var/www/lol-netlog/
-rsync -avz server somebits.com:/home/nelson/lol-netlog
+rsync -avz --delete server somebits.com:/home/nelson/lol-netlog
 
