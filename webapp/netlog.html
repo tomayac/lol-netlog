@@ -121,9 +121,7 @@ function handleFile(file) {
 
         // Asynchronously upload the file contents to the server
         if (d3.select("#uploadCheckbox").property('checked')) {
-            // Add the raw log to the object; we'd like it on the server
-            parsed.logText = fileContents.substring(0, 1000000);
-            uploadLog(parsed);
+            uploadLog(fileContents, parsed);
         }
 
         // Display the data
@@ -157,11 +155,15 @@ function loadUrl(url) {
     });
 }
 
-// Upload log file data text to a server
-function uploadLog(parsedLog) {
-    var dataText = JSON.stringify(parsedLog);
+// Upload log info to server
+function uploadLog(rawLog, parsedLog) {
+    // Goofy delimited format; send the JSON, then a Unicode separator, then the raw log.
+    // Truncate the raw log just in case the user grabbed an insane file
+    var uploadText = [JSON.stringify(parsedLog),
+                      '\n\u001c',
+                      rawLog.substring(0, 1000000)].join('');
     var xhr = d3.xhr(serverUrl)
-    xhr.post(dataText, function(error, response) {
+    xhr.post(uploadText, function(error, response) {
         if (error) {
             console.log("Error uploading data", error);
         }
