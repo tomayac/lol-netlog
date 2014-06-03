@@ -22,7 +22,7 @@ sys.stdin.close()
 # Generate a unique filename from a hash of file contents
 # A crypto hash is overkill here but it's the best option in stock Python
 bn = base64.urlsafe_b64encode(hashlib.md5(postdata).digest()).rstrip('=')
-fn = "%s/%s" % (destDir, bn)
+fn = "%s/%s.json" % (destDir, bn)
 
 # Write the data to the file if it's not already there
 if not os.path.isfile(fn):

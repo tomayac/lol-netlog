@@ -115,13 +115,19 @@ function handleFile(file) {
         // Grab the file contents from the event
         var fileContents = e.target.result;
 
+        // Parse the log
+        var parsed = parseLolNetlog(fileContents);
+
+
         // Asynchronously upload the file contents to the server
         if (d3.select("#uploadCheckbox").property('checked')) {
-            uploadDataText(fileContents);
+            // Add the raw log to the object; we'd like it on the server
+            parsed.logText = fileContents.substring(0, 1000000);
+            uploadLog(parsed);
         }
 
-        // And process it locally
-        processDataText(fileContents);
+        // Display the data
+        displayData(parsed);
     }
 
     // Fire off the actual read process.
@@ -134,31 +140,26 @@ function loadDemo(id) {
     loadFileFromHash();
 }
 
-// Load a file in the hash of the URL
+// Load and display a log named in the URL
 function loadFileFromHash() {
     var fn = window.location.hash.substr(1);
-    loadUrl('http://www.somebits.com/lol-netlogs/' + fn);
+    loadUrl('http://www.somebits.com/lol-netlogs/' + fn + '.json');
 }
 
-// Load an arbitrary URL as a logfile and process it.
+// Load parsed JSON data from the URL and display it.
 function loadUrl(url) {
-    d3.text(url, function(error, data) {
+    d3.json(url, function(error, data) {
         if (error) {
-            console.log("Demo failed", error);
+            console.log("Loading failed", url, error);
             return;
         }
-        processDataText(data);
+        displayData(data);
     });
 }
 
-// Process log file data and display it
-function processDataText(dataText) {
-    var parsed = parseLolNetlog(dataText);
-    displayData(parsed);
-}
-
 // Upload log file data text to a server
-function uploadDataText(dataText) {
+function uploadLog(parsedLog) {
+    var dataText = JSON.stringify(parsedLog);
     var xhr = d3.xhr(serverUrl)
     xhr.post(dataText, function(error, response) {
         if (error) {
@@ -166,7 +167,7 @@ function uploadDataText(dataText) {
         }
         // Set the hash of the URL to the new filename
         window.location = "#" + response.response;
-    })
+    });
 }
 
 // Display the parsed data
@@ -174,6 +175,7 @@ function displayData(parsed) {
     var data = parsed.ts;
     var lastRow = data[data.length - 1];
     var matchLength = lastRow[0] / 1000;
+    parsed.start = moment(parsed.start);
 
     // Display timestamp
     d3.select("#absoluteTS").text(parsed.start.format("dddd YYYY-MM-DD HH:mm"));
