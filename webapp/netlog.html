@@ -11,16 +11,20 @@
 /* App-in-a-browser layout */
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 #help {
+    font-size: 18px;
     color: #555;
     text-align: center; padding-top: 100px;
-    font-size: 18px;
     display: none;
 }
 #results {
+    font-size: 24px;
     max-width: 960px;
     margin: 0 auto;
     display: none;
-    font-size: 24px;
+
+}
+#aboutLink {
+    position: fixed; bottom: 0; left: 0; right: 0;
 }
 
 /* Results formatting */
@@ -43,8 +47,12 @@ svg rect { fill: #b44; }
 </head>
 
 <body>
+<a href="https://github.com/NelsonMinar/lol-netlog/">
 
 <div id="help">
+    <img style="position: absolute; top: 0; right: 0; border: 0;"
+         src="forkme.png" height=149 width=149
+         alt="Fork me on GitHub"/></a>
     <h1 style="padding-bottom: 50px;">LoL Netlog parser</h1>
     <h2>Drop a log file on this web page</h2>
 
@@ -62,9 +70,6 @@ svg rect { fill: #b44; }
       <a title="good game" href="" onclick="loadDemo('8guI7GZ2OhULm3mIGtOYqw'); return false;">good game</a>,
       <a title="bad game" href="" onclick="loadDemo('v1yiEVKr7_pYXS6mwblEFQ'); return false;">bad game</a>.
     </p>
-
-    <h3 class="attribution" style="padding-top: 100px;">By
-        Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a></h3>
 </div>
 
 <div id="results">
@@ -83,6 +88,8 @@ svg rect { fill: #b44; }
     </table>
     <div id="lossGraph"></div>
 </div>
+
+<h3 id="aboutLink"><a href="about.html">About the LoL Netlog Parser</a></h3>
 
 <script type="text/javascript">
 // URL for the optional server that will store log files
