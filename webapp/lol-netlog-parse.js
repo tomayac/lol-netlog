@@ -1,3 +1,5 @@
+"use strict";
+
 /* Javascript code to parse League of Legends netlogs.
  *
  * Given a LoL netlog as a string, will parse out useful information
