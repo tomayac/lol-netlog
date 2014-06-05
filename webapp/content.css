@@ -1,0 +1,18 @@
+body {
+    background-color: #eee; background-image:url(bg.jpg);
+    font-family: GillSans, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+h1,h2 {
+    font-family: Garamond, Baskerville, 'Baskerville Old Face', 'Hoefler Text', 'Times New Roman', serif;
+    font-weight: bold;
+    text-align: center;
+    color: #000;
+}
+h3.attribution {
+    font-weight: normal;
+}
+tt {
+    font-family: Courier, monospace;
+    font-size: 90%;
+    color: #000;
+}

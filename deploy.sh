@@ -3,7 +3,7 @@
 set -eu
 
 rsync -avz --delete \
-    webapp/{bg.jpg,*.html,*.js} \
+    webapp/{bg.jpg,*.html,*.js,*.css} \
     somebits.com:/var/www/lol-netlog/
 
 rsync -avzR --delete \
