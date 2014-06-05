@@ -10,15 +10,19 @@
 <style type="text/css">
 
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
+body { margin: 0; padding: 0;
+       background-color: #eee; background-image:url(bg.jpg);
+       font-family: GillSans, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+h1,h2 { font-family: Garamond, Baskerville, 'Baskerville Old Face', 'Hoefler Text', 'Times New Roman', serif; font-weight: bold}
 #help {
-    width: 100%; height: 100%;
-    background-color: #ddd; color: #444;
+    color: #444;
     text-align: center; padding-top: 100px;
     display: none;
+    font-size: 16px;
 }
 #results {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0);
     max-width: 960px;
     margin: 0 auto;
     display: none;
@@ -34,10 +38,11 @@ svg rect { fill: #b44; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis line { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis text { font-size: 12px; }
-#results { font-size: 20px; }
-table.numbers { max-width: 960px; margin: 0 auto; padding-bottom: 20px; }
+#results { font-size: 24px; }
+table.numbers { max-width: 960px; margin: 0 auto; padding: 4px; background-color: rgba(255, 255, 255, 0.0); }
+td.label { color: #444; }
 h1 { text-align: center; margin-bottom: 50px;  }
-h3.attribution { margin-top: 100px; }
+h3.attribution { margin-top: 100px; font-weight: normal;}
 td.r { text-align: right; padding-right: 4px; }
 </style>
 </head>
@@ -73,13 +78,13 @@ td.r { text-align: right; padding-right: 4px; }
 <span id="absoluteTS"></span><br><span id="relativeTS"></span>
 </div>
 <table class="numbers">
-    <tr><td class="r" id="incoming"></td><td>bytes/s in</td></tr>
-    <tr><td class="r" id="outgoing"></td><td>bytes/s out</td></tr>
-    <tr><td class="r" id="cumulativeLoss"></td><td>packets lost total</td></tr>
-    <tr><td class="r" id="lossPerSec"></td><td>packets lost/s</td></tr>
-    <tr><td class="r" id="bestPing"></td><td>best ping</td></tr>
-    <tr><td class="r" id="medianPing"></td><td>median ping</td></tr>
-    <tr><td class="r" id="gameLength"></td><td>minutes</td></tr>
+    <tr><td class="r" id="incoming"></td><td class="label">bytes/s in</td></tr>
+    <tr><td class="r" id="outgoing"></td><td class="label">bytes/s out</td></tr>
+    <tr><td class="r" id="cumulativeLoss"></td><td class="label">packets lost total</td></tr>
+    <tr><td class="r" id="lossPerSec"></td><td class="label">packets lost/s</td></tr>
+    <tr><td class="r" id="bestPing"></td><td class="label">best ping</td></tr>
+    <tr><td class="r" id="medianPing"></td><td class="label">median ping</td></tr>
+    <tr><td class="r" id="gameLength"></td><td class="label">minutes</td></tr>
 </table>
 <div id="lossGraph"></div>
 </div>
