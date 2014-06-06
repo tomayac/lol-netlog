@@ -33,9 +33,22 @@ table.numbers { max-width: 960px; margin: 0 auto; padding: 20px 0px 20px 80px; }
 td.label { color: #444; padding-left: 10px; }
 td.r { text-align: right; padding-right: 4px; }
 
+/* Tooltip formatting */
+#tooltip {
+    position: fixed;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    visibility: hidden;
+}
+td.ttnumber { width: 54px; text-align: right; }
+td.ttlabel { color: #444; padding-right: 8px; }
+#tttime { text-align: center; font-size: 120%; padding-bottom: 4px; }
+
 /* Chart SVG styling */
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
+svg rect.overlay { fill: none; pointer-events: all; }
 svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 .pingLegend { font-size: 24px; fill: #44b; }
 .lossLegend { font-size: 18px; fill: #b44; }
@@ -78,7 +91,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 <div id="results">
     <h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
     <div id="timestamp" style="padding-bottom: 10px;">
-    <span id="absoluteTS"></span><br><span id="relativeTS"></span>
+        <span id="absoluteTS"></span><br><span id="relativeTS"></span>
     </div>
     <table class="numbers">
         <tr><td class="r" id="incoming"></td><td class="label">bytes/s in</td></tr>
@@ -90,6 +103,17 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
         <tr><td class="r" id="gameLength"></td><td class="label">minutes</td></tr>
     </table>
     <div id="lossGraph"></div>
+    <div id="tooltip">
+        <div id="tttime"></div>
+        <table>
+            <tr><td class="ttnumber" id="ttping"></td><td class="ttlabel">Ping</td></tr>
+            <tr><td class="ttnumber" id="ttvar"></td><td class="ttlabel">Ping variance</td></tr>
+            <tr><td class="ttnumber" id="ttloss"></td><td class="ttlabel">Packets lost</td></tr>
+            <tr><td class="ttnumber" id="ttctos"></td><td class="ttlabel">Bytes to client</td></tr>
+            <tr><td class="ttnumber" id="ttstoc"></td><td class="ttlabel">Bytes to server</td></tr>
+        </table>
+    </div>
+
 </div>
 
 <h3 id="aboutLink"><a href="about.html">About Logs of Lag</a></h3>
@@ -305,6 +329,47 @@ function drawChart(data) {
     svg.append("svg:text").attr("class", "axisLegend").text("packets")
         .attr("transform", "translate(" + (width+margin.right-10) + "," + (height-10) + ") rotate(90) ");
 
+    // Tooltip overlay to capture mouse events
+    svg.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width).attr("height", "100%")
+        .datum(data)
+        .on("mousemove", updateTooltip)
+        .on("mouseenter", function() { d3.select('#tooltip').style('visibility', 'visible'); })
+        .on("mouseout", function() { d3.select('#tooltip').style('visibility', 'hidden'); });
+
+    function updateTooltip(d, i) {
+        // Find the timestamp from the mouse X coordinate
+        var pos = d3.mouse(this);
+        var tsMinutes = timeX.invert(pos[0]);
+        // Now find the row in the dataset that corresponds.
+        // It's roughly 6 rows a second, but not quite, so do a linear search from 10 rows before.
+        var mouseRow = Math.round(6*tsMinutes) - 10;
+        mouseRow = mouseRow < 0 ? 0 : mouseRow;
+        while (d[mouseRow][0] < 60000*tsMinutes-5000 && mouseRow < d.length) {
+            mouseRow += 1;
+        }
+        var row = d[mouseRow];
+        if (row) {
+            d3.select('#tooltip')
+                .style("top", (d3.event.pageY-145) + "px")
+                .style("left", d3.event.pageX+4 + "px");
+            d3.select('#tttime').text(formatMinutes(row[0]));
+            d3.select('#ttping').text(row[7]);
+            d3.select('#ttvar').text(row[8]);
+            d3.select('#ttloss').text(row[13]);
+            d3.select('#ttctos').text(row[3]);
+            d3.select('#ttstoc').text(row[4]);
+        }
+    }
+}
+
+// Format a duration of milliseconds into a time like "3:30"
+var formatTime = d3.time.format("%M:%S");
+function formatMinutes(duration) {
+    var m = Math.floor(duration/60000);
+    var s = Math.round((duration % 60000) / 1000);
+    return formatTime(new Date(2012, 0, 1, 0, m, s));
 }
 
 // Register for drag and drop on the whole page
