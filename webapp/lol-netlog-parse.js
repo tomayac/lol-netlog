@@ -42,6 +42,8 @@
  *   12: criticalTime: Time spent in critical section (frame)
  *   13: incrementalLoss: number of packets lost since last frame
  *   (Note we do not extract address from the logfile; Riot is no longer including useful info for that.)
+ *
+ * Note that these numbers are as documented in the netlog files, but it appears appCtos and appStoc are swapped.
  */
 function parseLolNetlog(data) {
     var result = { 'valid': false };
