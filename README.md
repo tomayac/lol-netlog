@@ -3,7 +3,8 @@ lol-netlog
 
 League of Legends netlog parser and webapp
 
-By Nelson Minar &lt;nelson@monkey.org&gt;, BSD licensed.
+Copyright (c) 2014 Daedalus Bits, LLC. Available under BSD license.
+By Nelson Minar &lt;nelson@monkey.org&gt;.
 
 This is the source code for [http://www.somebits.com/lol-netlog/](http://www.somebits.com/lol-netlog/), a
 work-in-progress webapp for working with League of Legends netlogs. These logs are written by the LoL game

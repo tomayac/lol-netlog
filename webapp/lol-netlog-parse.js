@@ -8,7 +8,8 @@
  *
  * This code depends on Moment.js for date parsing. http://momentjs.com/
  *
- * By Nelson Minar <nelson@monkey.org>, available under BSD license.
+ * Copyright (c) 2014 Daedalus Bits, LLC. Available under BSD license.
+ * By Nelson Minar <nelson@monkey.org>
  */
 
 
