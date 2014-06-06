@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head> <meta charset="utf-8">
-<title>LoL Netlog parser</title>
+<title>Logs of Lag</title>
 
 <script src="d3.v3.min.js" charset="utf-8"></script>
 <script src="moment.min.js"></script>
@@ -50,13 +50,14 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 
 <body>
 <a href="https://github.com/NelsonMinar/lol-netlog/">
-
-<div id="help">
     <img style="position: absolute; top: 0; right: 0; border: 0;"
          src="forkme.png" height=149 width=149
          alt="Fork me on GitHub"/></a>
-    <h1 style="padding-bottom: 50px;">LoL Netlog parser</h1>
-    <h2>Drop a log file on this web page</h2>
+
+<div id="help">
+    <h1>Logs of Lag</h1>
+    <p>a League of Legends netlog analyzer</p>
+    <h2 style="padding-top: 50px;">Drop a log file on this web page</h2>
 
     <div class="uploadControl" style="margin-top: 10px; margin-bottom: 100px;"><span class="uploadControl">
     <label><input type="checkbox" id="uploadCheckbox" checked="checked" style="margin-right: 10px;">Upload
@@ -75,7 +76,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 </div>
 
 <div id="results">
-    <h1>LoL Netlog parser</h1>
+    <h1>Logs of Lag</h1>
     <div id="timestamp" style="padding-bottom: 10px;">
     <span id="absoluteTS"></span><br><span id="relativeTS"></span>
     </div>
@@ -91,7 +92,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
     <div id="lossGraph"></div>
 </div>
 
-<h3 id="aboutLink"><a href="about.html">About the LoL Netlog Parser</a></h3>
+<h3 id="aboutLink"><a href="about.html">About Logs of Lag</a></h3>
 
 <script type="text/javascript">
 // URL for the optional server that will store log files
