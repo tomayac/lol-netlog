@@ -6,6 +6,7 @@ var parse = require("../webapp/lol-netlog-parse")
 describe('lol-netlog-parse', function() {
     var goodGameString, goodGameData;
     var oldFormatData;
+    var goodJsonData = {};
 
     before(function(done) {
         fs.readFile('test/good-game.txt', 'utf-8', function(err, data) {
@@ -18,6 +19,12 @@ describe('lol-netlog-parse', function() {
     before(function(done) {
         fs.readFile('test/2013-format.txt', 'utf-8', function(err, data) {
             oldFormatData = parse.parseLolNetlog(data);
+            done();
+        });
+    });
+    before(function(done) {
+        fs.readFile('test/good.json', 'utf-8', function(err, data) {
+            goodJsonData = parse.loadFromJson(data);
             done();
         });
     });
@@ -66,6 +73,16 @@ describe('lol-netlog-parse', function() {
             goodGameData.ts[23][5].should.equal(2);
             goodGameData.ts[22][13].should.equal(1);
             goodGameData.ts[23][13].should.equal(0);
+        });
+    });
+
+    describe('loadFromJson', function() {
+        it('Should have valid JSON data', function() {
+            goodJsonData.should.have.property('valid', true);
+        });
+        it('Should have converted the date to the Moment type', function() {
+            goodJsonData.start.should.not.be.a('string');
+            goodJsonData.start.year().should.equal(2014);
         });
     });
 });

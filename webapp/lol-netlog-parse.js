@@ -83,6 +83,17 @@ function parseLolNetlog(data) {
     return result;
 }
 
+/* Load a parsed netlog record from a string containing JSON data.
+ * Mostly a wrapper for JSON.parse(), but also adds useful types
+ * for .start.
+ * TODO: consider a nicer API for the rows as well.
+ */
+function loadFromJson(jsonText) {
+    var r = JSON.parse(jsonText);
+    r.start = moment(r.start);
+    return r;
+}
+
 /* Given a CSV row from the logfile, parse it out into an integer array.
  * input format is
  * [time], [address], [incoming], [outgoing], [app_ctos], [app_stoc], [loss], [sent], [ping], [variance], [reliable delayed], [unreliable delayed], [app update delayed], [Time spent in critical section (frame)]
@@ -115,4 +126,5 @@ if (typeof exports != 'undefined') {
     var moment = require('moment');
     exports._parseCsvRow = _parseCsvRow; // for testing
     exports.parseLolNetlog = parseLolNetlog;
+    exports.loadFromJson = loadFromJson;
 }

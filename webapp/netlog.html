@@ -153,11 +153,12 @@ function loadFileFromHash() {
 
 // Load parsed JSON data from the URL and display it.
 function loadUrl(url) {
-    d3.json(url, function(error, data) {
+    d3.text(url, function(error, dataText) {
         if (error) {
             console.log("Loading failed", url, error);
             return;
         }
+        var data = loadFromJson(dataText);
         displayData(data);
     });
 }
@@ -184,7 +185,6 @@ function displayData(parsed) {
     var data = parsed.ts;
     var lastRow = data[data.length - 1];
     var matchLength = lastRow[0] / 1000;
-    parsed.start = moment(parsed.start);
 
     // Display timestamp
     d3.select("#absoluteTS").text(parsed.start.format("dddd YYYY-MM-DD HH:mm"));
