@@ -1,6 +1,7 @@
 "use strict";
 
 /* Javascript code to parse League of Legends netlogs.
+ * http://logsoflag.com/
  *
  * Given a LoL netlog as a string, will parse out useful information
  * such as a time series of pings and packet losses, as well as generate

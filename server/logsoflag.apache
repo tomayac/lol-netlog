@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+    ServerName logsoflag.com
+    ServerAlias logsoflag.com *.logsoflag.com
+    ServerAdmin nelson@monkey.org
+    DocumentRoot /var/www-logsoflag
+
+    ErrorLog ${APACHE_LOG_DIR}/logsoflag/error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/logsoflag/access.log combined
+
+    Options -Indexes
+
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www.logsoflag.com$ [NC]
+    RewriteRule (.*) http://logsoflag.com$1 [R=301,L]
+
+    ExpiresActive on
+    ExpiresDefault A3600
+
+    AddOutputFilterByType DEFLATE application/json
+
+    ScriptAlias /store /home/nelson/lol-netlog/server/store-netlog.py
+
+    <Directory /var/www-logsoflag/logs/>
+        Header set Access-Control-Allow-Origin "*"
+        Options -Indexes
+    </Directory>
+</VirtualHost>

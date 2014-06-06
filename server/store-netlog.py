@@ -4,7 +4,7 @@
 # Not bullet proof or scalable, but suitable for a small CGI
 # REST nerds will say this should be a PUT.
 
-jsonDestDir = '/var/www/lol-netlogs/'
+jsonDestDir = '/var/www-logsoflag/logs/'
 rawDestDir = '/var/local/lol-netlogs/'
 
 import os, sys, time, contextlib, base64, hashlib

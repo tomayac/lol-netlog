@@ -4,7 +4,7 @@ set -eu
 
 rsync -avz --delete \
     webapp/{*.html,*.js,*.css,*.png,*.jpg} \
-    somebits.com:/var/www/lol-netlog/
+    somebits.com:/var/www-logsoflag/
 
 rsync -avzR --delete \
     server logToJson.js webapp/lol-netlog-parse.js \

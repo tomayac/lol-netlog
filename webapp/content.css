@@ -17,3 +17,7 @@ code {
     font-size: 90%;
     color: #000;
 }
+a.nodeco {
+    color: inherit;
+    text-decoration: inherit;
+}

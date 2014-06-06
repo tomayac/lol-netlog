@@ -55,7 +55,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
          alt="Fork me on GitHub"/></a>
 
 <div id="help">
-    <h1>Logs of Lag</h1>
+    <h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
     <p>a League of Legends netlog analyzer</p>
     <h2 style="padding-top: 50px;">Drop a log file on this web page</h2>
 
@@ -76,7 +76,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 </div>
 
 <div id="results">
-    <h1>Logs of Lag</h1>
+    <h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
     <div id="timestamp" style="padding-bottom: 10px;">
     <span id="absoluteTS"></span><br><span id="relativeTS"></span>
     </div>
@@ -96,7 +96,7 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 
 <script type="text/javascript">
 // URL for the optional server that will store log files
-var serverUrl = 'http://www.somebits.com/store-lol-netlog';
+var serverUrl = 'http://logsoflag.com/store';
 
 // Handler to cancel an event
 function cancelEvent(e) { e.stopPropagation(); e.preventDefault(); }
@@ -151,7 +151,7 @@ function loadDemo(id) {
 // Load and display a log named in the URL
 function loadFileFromHash() {
     var fn = window.location.hash.substr(1);
-    loadUrl('http://www.somebits.com/lol-netlogs/' + fn + '.json');
+    loadUrl('http://logsoflag.com/logs/' + fn + '.json');
 }
 
 // Load parsed JSON data from the URL and display it.

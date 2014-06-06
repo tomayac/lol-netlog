@@ -1,8 +1,5 @@
-The log storage is set up to be hosted by Apache for later re-downloading
+Server to store logs for Logs of Lag.
 
-Relevant Apache config:
-
-<Directory /var/www/lol-netlogs/>
-Header set Access-Control-Allow-Origin "*"
-Options -Indexes
-</Directory>
+The app is mostly client-side, the server is only needed to store
+logs for a shareable URL. Right now the server is a crappy Python CGI,
+there's also a Node version hidden in a git branch.
