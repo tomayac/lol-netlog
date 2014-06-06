@@ -36,10 +36,12 @@ td.r { text-align: right; padding-right: 4px; }
 /* Chart SVG styling */
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
+svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
 .pingLegend { font-size: 24px; fill: #44b; }
 .lossLegend { font-size: 18px; fill: #b44; }
 .axisLegend { font-size: 12px; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
+
 .axis line { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis text { font-size: 12px; }
 
@@ -231,15 +233,18 @@ function drawChart(data) {
     // Accessor functions for data to graph
     var timeData = function(d) { return d[0] / 60000; },
         pingData = function(d) { return d[7] < 1000 ? d[7]: 999; },
-        lossData = function(d) { return d[13]; };
+        lossData = function(d) { return d[13]; },
+        bwData   = function(d) { return d[3] + d[4]; };
 
     // X and Y scaling
     var timeX = d3.scale.linear().range([0, width]),
         pingY = d3.scale.linear().range([height-lossGraphHeight, 0]),
-        lossY = d3.scale.linear().range([0, lossGraphHeight]);
+        lossY = d3.scale.linear().range([0, lossGraphHeight]),
+        bwY   = d3.scale.linear().range([height-lossGraphHeight, 0]);
     timeX = timeX.domain([0, d3.max(data, timeData)]);
     pingY = pingY.domain([0, 1000]);
     lossY = lossY.domain([0, 20]);
+    bwY = bwY.domain([0,100000]);
 
     // Draw a bar chart for packet loss
     var barWidth = timeX(10/60);
@@ -253,6 +258,16 @@ function drawChart(data) {
         .attr("x", 1)
         .attr("width", barWidth)
         .attr("height", function(d) { return lossY(lossData(d)); });
+
+    // Draw a line for the time series of bandwidth
+    if (false) {
+        svg.append("path")
+            .datum(data)
+            .attr("class", "bandwidth")
+            .attr("d", d3.svg.line()
+                             .x(function(d) { return timeX(timeData(d)); })
+                             .y(function(d) { return bwY(bwData(d)); }));
+    }
 
     // Draw a line for the time series of ping
     svg.append("path")
