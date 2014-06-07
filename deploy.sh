@@ -3,7 +3,7 @@
 set -eu
 
 rsync -avz --delete \
-    webapp/{*.html,*.js,*.css,*.png,*.jpg} \
+    webapp/{*.html,*.js,*.css,*.png,*.jpg,favicon.ico} \
     somebits.com:/var/www-logsoflag/
 
 rsync -avzR --delete \
