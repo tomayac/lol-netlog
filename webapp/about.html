@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> <meta charset="utf-8">
+<title>About the LoL Netlog parser</title>
+<link rel="stylesheet" href="content.css"/>
+<style type="text/css">
+body { width: 500px; margin: auto; font-size: 20px; }
+#riotDisclaimer { font-size: 80%; margin: 20px; color: #444; }
+</style>
+</head>
+
+<body>
+   <img style="position: absolute; top: 0; right: 0; border: 0;"
+         src="forkme.png" height=149 width=149
+         alt="Fork me on GitHub"/></a>
+<h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
+
+<p>
+<a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a>
+is a browser tool for parsing League of Legends
+network logs. These logs are written by the LoL game client and
+are useful for understanding the kinds of lag you see when playing
+the game.
+</p>
+
+<p>
+After dropping a logfile onto the browser window, the page will analyze the log
+locally on your computer and present summary statistics. The most important number
+in the summary table is "packets lost/s". Small numbers like 0.02 are generally OK,
+losses greater than 0.10 are bad. Median and best ping are interesting as well as
+they characterize the general latency you see during a game. 20–200ms is typical, it
+usually depends on your distance to Riot's data centers.
+</p>
+
+<p>The summary graph below the table shows a timeline of ping
+(blue) and packets lost (red), once every 10 seconds.
+Note that the "ping" reported in the LoL client is a
+combination of round trip time to the server as well as
+transient problems with packet buffering or loss. The best ping time indicates the
+basic latency. Bursts of packet loss are what causes noticeable lag in the game,
+rubber banding, etc. Packet loss is typically caused by a congested network,
+whether your home router, your ISP, or Riot's network.
+</p>
+
+<div style="width:400px; height:300px; background-color: white; margin: 0 auto;">
+Screenshot here.</div>
+
+<p>
+Log files are optionally uploaded to my server so that reports can be shared with
+other people. I may also use these logs for development and testing purposes; I
+intend to not reveal any personally identifiable information.
+The raw netlogs are mostly anonymous (no user name), but occasionally contain
+your computer's IP address.
+The parsed logs used in shared reports should be entirely anonymous.
+</p>
+
+<p>
+This tool is implemented as an HTML5 application using
+drag-and-drop files and SVG graphs (with <a href="http://d3js.org/">D3.js</a>).
+It should work in any modern browser.
+I develop on Chrome and occasionally test on Firefox
+and Safari. I do not have access to MSIE, but it should probably work
+in IE 10. No attempt has been made to make this tool useful on mobile devices.</p>
+
+<p>
+I was inspired by <a href="http://www.lolparse.com/">lolparse.com</a>,
+an excellent browser tool for parsing R3d logs to show you gameplay statistics
+like most played champions. It's an excellent site, try it!
+</p>
+
+<h3 class="attribution" style="padding-top: 100px;">
+Copyright &copy; 2014 Daedalus Bits, LLC<br>
+Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a></h3>
+
+<div id="riotDisclaimer" style="padding-top: 30px;">
+Logs of Lag isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends.</div>
+
+
+</body></html>

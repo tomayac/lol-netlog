@@ -1,90 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head> <meta charset="utf-8">
-<title>LoL Netlog parser</title>
+<title>Logs of Lag</title>
 
 <script src="d3.v3.min.js" charset="utf-8"></script>
 <script src="moment.min.js"></script>
 <script src="lol-netlog-parse.js"></script>
-
+<link rel="stylesheet" href="content.css"/>
 <style type="text/css">
-
+/* App-in-a-browser layout */
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans; }
 #help {
-    width: 100%; height: 100%;
-    background-color: #ddd; color: #444;
+    font-size: 18px;
+    color: #555;
     text-align: center; padding-top: 100px;
     display: none;
 }
 #results {
-    background-color: #fff;
+    font-size: 24px;
     max-width: 960px;
     margin: 0 auto;
     display: none;
+
 }
-div.uploadControl { margin-top: 10px; margin-bottom: 100px; }
-input { margin-right: 10px; }
-#timestamp { text-align: center; font-size: 24px; padding-bottom: 10px; }
+#aboutLink {
+    position: fixed; bottom: 0; left: 0; right: 0;
+}
+
+/* Results formatting */
+#timestamp { text-align: center; font-size: 24px; }
+table.numbers { max-width: 960px; margin: 0 auto; padding: 20px 0px 20px 80px; }
+td.label { color: #444; padding-left: 10px; }
+td.r { text-align: right; padding-right: 4px; }
+
+/* Tooltip formatting */
+#tooltip {
+    position: fixed;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    visibility: hidden;
+    pointer-events: none;
+}
+td.ttnumber { width: 54px; text-align: right; }
+td.ttlabel { color: #444; padding-right: 8px; }
+#tttime { text-align: center; font-size: 120%; padding-bottom: 4px; }
+
+/* Chart SVG styling */
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
+svg rect.overlay { fill: none; pointer-events: all; }
+svg path.bwGraph { stroke-width: 1.5px; stroke: #888; }
 .pingLegend { font-size: 24px; fill: #44b; }
+.bwLegend { font-size: 18px; fill: #888; }
+.bwGraph { visibility: hidden; }
 .lossLegend { font-size: 18px; fill: #b44; }
 .axisLegend { font-size: 12px; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
+
 .axis line { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
 .axis text { font-size: 12px; }
-#results { font-size: 20px; }
-table.numbers { max-width: 960px; margin: 0 auto; padding-bottom: 20px; }
-h1 { text-align: center; margin-bottom: 50px;  }
-h3.attribution { margin-top: 100px; }
-td.r { text-align: right; padding-right: 4px; }
+
 </style>
 </head>
 
 <body>
+<a href="https://github.com/NelsonMinar/lol-netlog/">
+    <img style="position: absolute; top: 0; right: 0; border: 0;"
+         src="forkme.png" height=149 width=149
+         alt="Fork me on GitHub"/></a>
 
 <div id="help">
+    <h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
+    <p>a League of Legends netlog analyzer</p>
+    <h2 style="padding-top: 50px;">Drop a log file on this web page</h2>
 
-<h1>LoL Netlog parser</h1>
-<h2>Drop a log file on this web page</h2>
+    <div class="uploadControl" style="margin-top: 10px; margin-bottom: 100px;"><span class="uploadControl">
+    <label><input type="checkbox" id="uploadCheckbox" checked="checked" style="margin-right: 10px;">Upload
+        a copy of the logfile (optional)</label>
+    </span></div>
 
-<div class="uploadControl"><span class="uploadControl">
-<label><input type="checkbox" id="uploadCheckbox" checked="true">Upload a copy of the logfile (optional)</input></label>
-</span></div>
+    <h2>Log file location</h2>
 
-<h2>Log file location</h2>
-
-<p>On Windows, look in <tt>C:\Riot Games\League of Legends\Logs\Network Logs</tt></p>
-<p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
-<tt>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</tt></p>
-<p>Or try these demos:
-  <a title="good game" href="" onclick="loadDemo('00c6474be8354c6c94862f3e4a57cc5f'); return false;">good game</a>,
-  <a title="bad game" href="" onclick="loadDemo('91b4cc432544489782c4197a46e4805a'); return false;">bad game</a>.
-</p>
-
-
-<h3 class="attribution">By Nelson Minar <a href="mailto:nelson@monkey.org">&lt;nelson@monkey.org&gt;</a>
+    <p>On Windows, look in <code>C:\Riot Games\League of Legends\Logs\Network Logs</code></p>
+    <p>On a Mac, open a Finder window, press &#8984;-Shift-G, and paste in<br>
+    <code>/Applications/League of Legends.app/Contents/LOL/Logs/Network Logs</code></p>
+    <p style="padding-top: 20px;">Or try these demos:
+      <a title="good game" href="" onclick="loadDemo('8guI7GZ2OhULm3mIGtOYqw'); return false;">good game</a>,
+      <a title="bad game" href="" onclick="loadDemo('v1yiEVKr7_pYXS6mwblEFQ'); return false;">bad game</a>.
+    </p>
 </div>
 
 <div id="results">
-<h1>LoL Netlog parser</h1>
-<div id="timestamp">
-<span id="absoluteTS"></span><br><span id="relativeTS"></span>
-</div>
-<table class="numbers">
-    <tr><td class="r" id="incoming"></td><td>bytes/s in</td></tr>
-    <tr><td class="r" id="outgoing"></td><td>bytes/s out</td></tr>
-    <tr><td class="r" id="cumulativeLoss"></td><td>packets lost total</td></tr>
-    <tr><td class="r" id="lossPerSec"></td><td>packets lost/s</td></tr>
-    <tr><td class="r" id="bestPing"></td><td>best ping</td></tr>
-    <tr><td class="r" id="medianPing"></td><td>median ping</td></tr>
-    <tr><td class="r" id="gameLength"></td><td>minutes</td></tr>
-</table>
-<div id="lossGraph"></div>
+    <h1><a class="nodeco" href="http://logsoflag.com/">Logs of Lag</a></h1>
+    <div id="timestamp" style="padding-bottom: 10px;">
+        <span id="absoluteTS"></span><br><span id="relativeTS"></span>
+    </div>
+    <table class="numbers">
+        <tr><td class="r" id="lossPerSec"></td><td class="label">packets lost/s</td></tr>
+        <tr><td class="r" id="cumulativeLoss"></td><td class="label">packets lost total</td></tr>
+        <tr><td class="r" id="bestPing"></td><td class="label">best ping</td></tr>
+        <tr><td class="r" id="medianPing"></td><td class="label">median ping</td></tr>
+        <tr><td class="r" id="incoming"></td><td class="label">bytes/s in</td></tr>
+        <tr><td class="r" id="outgoing"></td><td class="label">bytes/s out</td></tr>
+        <tr><td class="r" id="gameLength"></td><td class="label">minutes</td></tr>
+    </table>
+    <div id="lossGraph"></div>
+    <div id="tooltip">
+        <div id="tttime"></div>
+        <table>
+            <tr><td class="ttnumber" id="ttping"></td><td class="ttlabel">Ping</td></tr>
+            <tr><td class="ttnumber" id="ttvar"></td><td class="ttlabel">Ping variance</td></tr>
+            <tr><td class="ttnumber" id="ttloss"></td><td class="ttlabel">Packets lost</td></tr>
+            <tr><td class="ttnumber" id="ttctos"></td><td class="ttlabel">Bytes to client</td></tr>
+            <tr><td class="ttnumber" id="ttstoc"></td><td class="ttlabel">Bytes to server</td></tr>
+        </table>
+    </div>
+
 </div>
 
+<h3 id="aboutLink"><a href="about.html">About Logs of Lag</a></h3>
+
 <script type="text/javascript">
+// URL for the optional server that will store log files
+var serverUrl = 'http://logsoflag.com/store';
 
 // Handler to cancel an event
 function cancelEvent(e) { e.stopPropagation(); e.preventDefault(); }
@@ -115,13 +154,17 @@ function handleFile(file) {
         // Grab the file contents from the event
         var fileContents = e.target.result;
 
+        // Parse the log
+        var parsed = parseLolNetlog(fileContents);
+
+
         // Asynchronously upload the file contents to the server
         if (d3.select("#uploadCheckbox").property('checked')) {
-            uploadDataText(fileContents);
+            uploadLog(fileContents, parsed);
         }
 
-        // And process it locally
-        processDataText(fileContents);
+        // Display the data
+        displayData(parsed);
     }
 
     // Fire off the actual read process.
@@ -134,46 +177,46 @@ function loadDemo(id) {
     loadFileFromHash();
 }
 
-// Load a file in the hash of the URL
+// Load and display a log named in the URL
 function loadFileFromHash() {
     var fn = window.location.hash.substr(1);
-    loadUrl('http://www.somebits.com/lol-netlogs/' + fn);
+    loadUrl('http://logsoflag.com/logs/' + fn + '.json');
 }
 
-// Load an arbitrary URL as a logfile and process it.
+// Load parsed JSON data from the URL and display it.
 function loadUrl(url) {
-    d3.text(url, function(error, data) {
+    d3.text(url, function(error, dataText) {
         if (error) {
-            console.log("Demo failed", error);
+            console.log("Loading failed", url, error);
             return;
         }
-        processDataText(data);
+        var data = loadFromJson(dataText);
+        displayData(data);
     });
 }
 
-// Process log file data and display it
-function processDataText(dataText) {
-    var parsed = parseLolNetlog(dataText);
-    displayData(parsed);
-}
-
-// Upload log file data text to a server
-function uploadDataText(dataText) {
-    var xhr = d3.xhr('http://www.somebits.com/store-lol-netlog')
-    xhr.post(dataText, function(error, response) {
+// Upload log info to server
+function uploadLog(rawLog, parsedLog) {
+    // Goofy delimited format; send the JSON, then a Unicode separator, then the raw log.
+    // Truncate the raw log just in case the user grabbed an insane file
+    var uploadText = [JSON.stringify(parsedLog),
+                      '\n\u001c',
+                      rawLog.substring(0, 1000000)].join('');
+    var xhr = d3.xhr(serverUrl)
+    xhr.post(uploadText, function(error, response) {
         if (error) {
             console.log("Error uploading data", error);
         }
         // Set the hash of the URL to the new filename
         window.location = "#" + response.response;
-    })
+    });
 }
 
 // Display the parsed data
 function displayData(parsed) {
     var data = parsed.ts;
     var lastRow = data[data.length - 1];
-    var matchLength = lastRow.time / 1000;
+    var matchLength = lastRow[0] / 1000;
 
     // Display timestamp
     d3.select("#absoluteTS").text(parsed.start.format("dddd YYYY-MM-DD HH:mm"));
@@ -181,12 +224,12 @@ function displayData(parsed) {
 
     // And various ping statistics
     d3.select("#gameLength").text(Math.round(matchLength/60));
-    d3.select("#incoming").text(Math.round(lastRow.incoming/matchLength));
-    d3.select("#outgoing").text(Math.round(lastRow.outgoing/matchLength));
-    d3.select("#cumulativeLoss").text(lastRow.cumulativeLoss);
-    d3.select("#lossPerSec").text((lastRow.cumulativeLoss/matchLength).toFixed(2));
-    d3.select("#bestPing").text(d3.min(data, function(d) { return d.ping; }));
-    d3.select("#medianPing").text(d3.median(data, function(d) { return d.ping; }));
+    d3.select("#incoming").text(Math.round(lastRow[1]/matchLength));
+    d3.select("#outgoing").text(Math.round(lastRow[2]/matchLength));
+    d3.select("#cumulativeLoss").text(lastRow[5]);
+    d3.select("#lossPerSec").text((lastRow[5]/matchLength).toFixed(2));
+    d3.select("#bestPing").text(d3.min(data, function(d) { return d[7]; }));
+    d3.select("#medianPing").text(d3.median(data, function(d) { return d[7]; }));
 
     // And draw the chart
     drawChart(data);
@@ -218,17 +261,20 @@ function drawChart(data) {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Accessor functions for data to graph
-    var timeData = function(d) { return d.time / 60000; },
-        pingData = function(d) { return d.ping < 1000 ? d.ping: 999; },
-        lossData = function(d) { return d.incrementalLoss; };
+    var timeData = function(d) { return d[0] / 60000; },
+        pingData = function(d) { return d[7] < 1000 ? d[7]: 999; },
+        lossData = function(d) { return d[13]; },
+        bwData   = function(d) { return d[3] + d[4]; };
 
     // X and Y scaling
     var timeX = d3.scale.linear().range([0, width]),
         pingY = d3.scale.linear().range([height-lossGraphHeight, 0]),
-        lossY = d3.scale.linear().range([0, lossGraphHeight]);
+        lossY = d3.scale.linear().range([0, lossGraphHeight]),
+        bwY   = d3.scale.linear().range([height-lossGraphHeight, 0]);
     timeX = timeX.domain([0, d3.max(data, timeData)]);
     pingY = pingY.domain([0, 1000]);
     lossY = lossY.domain([0, 20]);
+    bwY = bwY.domain([0,100000]);
 
     // Draw a bar chart for packet loss
     var barWidth = timeX(10/60);
@@ -239,9 +285,19 @@ function drawChart(data) {
                   .attr("transform", function(d) {
                         return "translate(" + timeX(timeData(d)) + "," + ((height-lossGraphHeight)+lossGraphStart) + ")"; });
     bar.append("rect")
-        .attr("x", 1)
+        .attr("x", -barWidth/2)
         .attr("width", barWidth)
         .attr("height", function(d) { return lossY(lossData(d)); });
+
+    // Draw a line for the time series of bandwidth
+    if (true) {
+        svg.append("path")
+            .datum(data)
+            .attr("class", "bwGraph")
+            .attr("d", d3.svg.line()
+                             .x(function(d) { return timeX(timeData(d)); })
+                             .y(function(d) { return bwY(bwData(d)); }));
+    }
 
     // Draw a line for the time series of ping
     svg.append("path")
@@ -271,6 +327,9 @@ function drawChart(data) {
     // And a legend
     svg.append("svg:text").attr("class", "pingLegend").text("Ping")
         .attr("transform", "translate(30, 30)");
+    svg.append("svg:text").text("Bandwidth")
+        .attr("class", "bwLegend bwGraph")
+        .attr("transform", "translate(30, 54)");
     svg.append("svg:text").attr("class", "lossLegend").text("Lost packets")
         .attr("transform", "translate(30, " + (height+lossGraphStart) + ")");
     svg.append("svg:text").attr("class", "axisLegend").text("milliseconds")
@@ -278,17 +337,64 @@ function drawChart(data) {
     svg.append("svg:text").attr("class", "axisLegend").text("packets")
         .attr("transform", "translate(" + (width+margin.right-10) + "," + (height-10) + ") rotate(90) ");
 
+    // Overlay to capture mouse events for tooltip, bandwidth graph
+    svg.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width).attr("height", "100%")
+        .datum(data)
+        .on("mousemove", updateTooltip)
+        .on("mouseenter", function() { extraVisibility('visible'); })
+        .on("mouseout", function() { extraVisibility('hidden'); })
+
+    function extraVisibility(v) {
+        d3.selectAll('#tooltip').style('visibility', v);
+        d3.selectAll('.bwGraph').style('visibility', v);
+    }
+
+    function updateTooltip(d, i) {
+        // Find the timestamp from the mouse X coordinate
+        var pos = d3.mouse(this);
+        var tsMinutes = timeX.invert(pos[0]);
+        // Now find the row in the dataset that corresponds.
+        // It's roughly 6 rows a second, but not quite, so do a linear search from 10 rows before.
+        var mouseRow = Math.round(6*tsMinutes) - 10;
+        mouseRow = mouseRow < 0 ? 0 : mouseRow;
+        while (d[mouseRow][0] < 60000*tsMinutes-5000 && mouseRow < d.length) {
+            mouseRow += 1;
+        }
+        var row = d[mouseRow];
+        if (row) {
+            d3.select('#tooltip')
+                .style("top", (d3.event.pageY-145) + "px")
+                .style("left", d3.event.pageX+4 + "px");
+            d3.select('#tttime').text(formatMinutes(row[0]));
+            d3.select('#ttping').text(row[7]);
+            d3.select('#ttvar').text(row[8]);
+            d3.select('#ttloss').text(row[13]);
+            d3.select('#ttctos').text(row[3]);
+            d3.select('#ttstoc').text(row[4]);
+        }
+    }
+}
+
+// Format a duration of milliseconds into a time like "3:30"
+var formatTime = d3.time.format("%M:%S");
+function formatMinutes(duration) {
+    var m = Math.floor(duration/60000);
+    var s = Math.round((duration % 60000) / 1000);
+    return formatTime(new Date(2012, 0, 1, 0, m, s));
 }
 
 // Show whichever view is appropriate based on our URL. FSM bless AJAX.
 function showPageBasedOnUrl() {
     console.log("Showing new page..", window.location.href);
-    if (window.location.hash.length == 33) {
+    if (window.location.hash.length > 0) {
         loadFileFromHash();
     } else if (window.location.hash == "#not-uploaded") {
         // Do nothing; probably got here via the back button, but the data is lost
     } else {
         d3.select("#help").style("display", "block");
+        d3.select("#results").style("display", "none");
     }
 }
 

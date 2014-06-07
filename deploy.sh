@@ -1,8 +1,11 @@
 #!/bin/bash
 
 set -eu
-rsync -avz \
-    webapp/* \
-    somebits.com:/var/www/lol-netlog/
-rsync -avz server somebits.com:/home/nelson/lol-netlog
 
+rsync -avz --delete \
+    webapp/{*.html,*.js,*.css,*.png,*.jpg} \
+    somebits.com:/var/www-logsoflag/
+
+rsync -avzR --delete \
+    server logToJson.js webapp/lol-netlog-parse.js \
+    somebits.com:/home/nelson/lol-netlog
