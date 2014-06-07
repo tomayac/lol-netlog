@@ -40,6 +40,7 @@ td.r { text-align: right; padding-right: 4px; }
     font-size: 16px;
     background-color: white;
     visibility: hidden;
+    pointer-events: none;
 }
 td.ttnumber { width: 54px; text-align: right; }
 td.ttlabel { color: #444; padding-right: 8px; }
@@ -49,8 +50,10 @@ td.ttlabel { color: #444; padding-right: 8px; }
 svg path { fill: none; stroke: #44b; stroke-linecap: round; stroke-width: 3.5px; }
 svg rect { fill: #b44; }
 svg rect.overlay { fill: none; pointer-events: all; }
-svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
+svg path.bwGraph { stroke-width: 1.5px; stroke: #888; }
 .pingLegend { font-size: 24px; fill: #44b; }
+.bwLegend { font-size: 18px; fill: #888; }
+.bwGraph { visibility: hidden; }
 .lossLegend { font-size: 18px; fill: #b44; }
 .axisLegend { font-size: 12px; }
 .axis path { shape-rendering: crispEdges; stroke-width: 1.5px; stroke: #888; }
@@ -94,12 +97,12 @@ svg path.bandwidth { stroke-width: 1.5px; stroke: #888; }
         <span id="absoluteTS"></span><br><span id="relativeTS"></span>
     </div>
     <table class="numbers">
-        <tr><td class="r" id="incoming"></td><td class="label">bytes/s in</td></tr>
-        <tr><td class="r" id="outgoing"></td><td class="label">bytes/s out</td></tr>
-        <tr><td class="r" id="cumulativeLoss"></td><td class="label">packets lost total</td></tr>
         <tr><td class="r" id="lossPerSec"></td><td class="label">packets lost/s</td></tr>
+        <tr><td class="r" id="cumulativeLoss"></td><td class="label">packets lost total</td></tr>
         <tr><td class="r" id="bestPing"></td><td class="label">best ping</td></tr>
         <tr><td class="r" id="medianPing"></td><td class="label">median ping</td></tr>
+        <tr><td class="r" id="incoming"></td><td class="label">bytes/s in</td></tr>
+        <tr><td class="r" id="outgoing"></td><td class="label">bytes/s out</td></tr>
         <tr><td class="r" id="gameLength"></td><td class="label">minutes</td></tr>
     </table>
     <div id="lossGraph"></div>
@@ -285,10 +288,10 @@ function drawChart(data) {
         .attr("height", function(d) { return lossY(lossData(d)); });
 
     // Draw a line for the time series of bandwidth
-    if (false) {
+    if (true) {
         svg.append("path")
             .datum(data)
-            .attr("class", "bandwidth")
+            .attr("class", "bwGraph")
             .attr("d", d3.svg.line()
                              .x(function(d) { return timeX(timeData(d)); })
                              .y(function(d) { return bwY(bwData(d)); }));
@@ -322,6 +325,9 @@ function drawChart(data) {
     // And a legend
     svg.append("svg:text").attr("class", "pingLegend").text("Ping")
         .attr("transform", "translate(30, 30)");
+    svg.append("svg:text").text("Bandwidth")
+        .attr("class", "bwLegend bwGraph")
+        .attr("transform", "translate(30, 54)");
     svg.append("svg:text").attr("class", "lossLegend").text("Lost packets")
         .attr("transform", "translate(30, " + (height+lossGraphStart) + ")");
     svg.append("svg:text").attr("class", "axisLegend").text("milliseconds")
@@ -329,14 +335,19 @@ function drawChart(data) {
     svg.append("svg:text").attr("class", "axisLegend").text("packets")
         .attr("transform", "translate(" + (width+margin.right-10) + "," + (height-10) + ") rotate(90) ");
 
-    // Tooltip overlay to capture mouse events
+    // Overlay to capture mouse events for tooltip, bandwidth graph
     svg.append("rect")
         .attr("class", "overlay")
         .attr("width", width).attr("height", "100%")
         .datum(data)
         .on("mousemove", updateTooltip)
-        .on("mouseenter", function() { d3.select('#tooltip').style('visibility', 'visible'); })
-        .on("mouseout", function() { d3.select('#tooltip').style('visibility', 'hidden'); });
+        .on("mouseenter", function() { extraVisibility('visible'); })
+        .on("mouseout", function() { extraVisibility('hidden'); })
+
+    function extraVisibility(v) {
+        d3.selectAll('#tooltip').style('visibility', v);
+        d3.selectAll('.bwGraph').style('visibility', v);
+    }
 
     function updateTooltip(d, i) {
         // Find the timestamp from the mouse X coordinate
