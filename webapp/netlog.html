@@ -142,7 +142,7 @@ function drop(e) {
 
 function handleFile(file) {
     // Update the URL to indicate the file is so far not uploaded
-    window.location.hash = "#not-uploaded";
+    window.history.pushState({}, "", "#not-uploaded");
     // Read in the file and hand it off to our application function
     var reader = new FileReader();
     reader.onloadend = function(e) {
@@ -208,7 +208,7 @@ function uploadLog(rawLog, parsedLog) {
             console.log("Error uploading data", error);
         }
         // Set the hash of the URL to the new filename
-        window.location = "#" + response.response;
+        window.history.replaceState({}, "", "#" + response.response);
     });
 }
 
@@ -385,14 +385,16 @@ function formatMinutes(duration) {
     return formatTime(new Date(2012, 0, 1, 0, m, s));
 }
 
-// Show whichever view is appropriate based on our URL. FSM bless AJAX.
+// Show whichever view is appropriate based on our URL.
 function showPageBasedOnUrl() {
-    console.log("Showing new page..", window.location.href);
-    if (window.location.hash.length > 0) {
+    if (window.location.hash == "#not-uploaded") {
+        // Do nothing if we go back to a #not-uploaded URL.
+        // Should re-draw old data, could probably throw it to ourselves on the state stack
+    } else if (window.location.hash.length > 0 ) {
+        // Uploaded log named in hash, let's load it
         loadFileFromHash();
-    } else if (window.location.hash == "#not-uploaded") {
-        // Do nothing; probably got here via the back button, but the data is lost
     } else {
+        // No hash, show the help page
         d3.select("#help").style("display", "block");
         d3.select("#results").style("display", "none");
     }
