@@ -25,20 +25,21 @@ the game.
 
 <p>
 After dropping a logfile onto the browser window, the page will analyze the log
-locally on your computer and present summary statistics. The most important number
-in the summary table is "packets lost/s". Small numbers like 0.02 are generally OK,
-losses greater than 0.10 are bad. Median and best ping are interesting as well as
+locally on your computer and present a summary and a graph. The most important number
+in the summary table is "packets lost/s". Small numbers like 0.02/s are generally OK,
+losses greater than 0.10/s are bad. Median and best ping are interesting as well as
 they characterize the general latency you see during a game. 20–200ms is typical, it
 usually depends on your distance to Riot's data centers.
 </p>
 
-<p>The summary graph below the table shows a timeline of ping
+<p>The graph below the table shows a timeline of ping
 (blue) and packets lost (red), once every 10 seconds.
 Note that the "ping" reported in the LoL client is a
 combination of round trip time to the server as well as
-transient problems with packet buffering or loss. The best ping time indicates the
-basic latency. Bursts of packet loss are what causes noticeable lag in the game,
-rubber banding, etc. Packet loss is typically caused by a congested network,
+transient problems with packet buffering or loss. Ping is normally stable
+unless there's packet lost.
+Bursts of packet loss are what causes noticeable lag in the game: pauses,
+rubberbanding, drifting, etc. Packet loss is typically caused by a congested network,
 whether your home router, your ISP, or Riot's network.
 </p>
 
@@ -46,11 +47,12 @@ whether your home router, your ISP, or Riot's network.
 
 <p>
 Log files are optionally uploaded to my server so that reports can be shared with
-other people. I may also use these logs for development and testing purposes; I
+other people. I may also use these logs for development and testing purposes. I
 intend to not reveal any personally identifiable information.
-The raw netlogs are mostly anonymous (no user name), but occasionally contain
-your computer's IP address.
-The parsed logs used in shared reports should be entirely anonymous.
+The raw netlogs I keep privately are mostly anonymous (no user name),
+but occasionally contain your computer's IP address.
+The parsed logs used in shared reports should be entirely anonymous and not
+contain your IP address.
 </p>
 
 <p>
@@ -64,7 +66,7 @@ in IE 10. No attempt has been made to make this tool useful on mobile devices.</
 <p>
 I was inspired by <a href="http://www.lolparse.com/">lolparse.com</a>,
 an excellent browser tool for parsing R3d logs to show you gameplay statistics
-like most played champions. It's an excellent site, try it!
+like most played champions. It's a great site, try it!
 </p>
 
 <h3 class="attribution" style="padding-top: 100px;">
